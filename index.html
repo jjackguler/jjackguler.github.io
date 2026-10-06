@@ -1,0 +1,1010 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cem Guler — The New Cave</title>
+<meta name="description" content="Cem (Jack) Guler — applied-AI innovation leader for media. A portfolio for CBC/Radio-Canada's Director, AI Innovation Enablement role.">
+<meta name="theme-color" content="#0b0a09">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,100..900,0..100,0..1;1,9..144,100..900,0..100,0..1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+<style>
+:root{
+  --basalt:#0b0a09; --char:#151311; --char-2:#1d1a17; --ash:#2a2622;
+  --ochre:#c9853a; --amber:#f0a24c; --ember:#ff7a2e;
+  --bone:#efe6d4; --parchment:#d8cbb1; --bone-dim:#b9ad97; --smoke:#8d8475;
+  --pigment:#b4362a; --pigment-day:#9e2c21;
+  --day:#f5efe4; --day-2:#ebe3d4; --ink:#1a1714; --ink-2:#4a433b; --rule:#cfc3ae;
+  --focus:#ffcf7a;
+  --f-display:"Fraunces", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --gutter:clamp(16px, 4vw, 56px);
+  --ease:cubic-bezier(.2,.7,.1,1);
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:auto}
+body{margin:0;background:var(--basalt);color:var(--bone);font-family:var(--f-display);font-optical-sizing:auto;
+  font-variation-settings:"SOFT" 30,"WONK" 0;font-size:18px;line-height:1.55;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:2px}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.mono{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:500}
+.skip{position:fixed;left:12px;top:-60px;z-index:100;background:var(--bone);color:var(--ink);padding:10px 14px;font-family:var(--f-mono);font-size:12px;text-decoration:none;transition:top .2s}
+.skip:focus{top:12px}
+
+/* ---------- WebGL stage ---------- */
+#stage{position:fixed;inset:0;z-index:0;background:radial-gradient(120% 90% at 30% 60%, #2a1a0e 0%, #120d09 45%, var(--basalt) 100%);transition:opacity .6s linear}
+#stage canvas{display:block;width:100%;height:100%}
+#veil{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(130% 100% at 50% 50%, transparent 55%, rgba(0,0,0,.35) 100%)}
+html.gl #stage{background:var(--basalt)}
+
+/* ---------- loader ---------- */
+#loader{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:var(--basalt);transition:opacity 1.1s var(--ease), visibility 1.1s}
+#loader .l-in{display:grid;gap:18px;justify-items:center;text-align:center}
+#loader .flame{width:10px;height:44px;border-radius:50% 50% 45% 45%/70% 70% 30% 30%;background:radial-gradient(60% 80% at 50% 80%, #fff3c4, var(--amber) 45%, rgba(240,120,40,0) 75%);filter:blur(.6px);animation:lf 1.2s ease-in-out infinite alternate;box-shadow:0 0 60px 18px rgba(240,140,60,.25)}
+@keyframes lf{from{transform:scaleY(.86) skewX(-3deg)}to{transform:scaleY(1.06) skewX(3deg)}}
+#loader .mono{color:var(--bone-dim)}
+html.ready #loader{opacity:0;visibility:hidden}
+html:not(.js) #loader{display:none}
+
+/* ---------- nav ---------- */
+.nav{position:fixed;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;gap:14px;padding:14px var(--gutter);
+  background:linear-gradient(to bottom, rgba(8,7,6,.72), rgba(8,7,6,0));transition:background .5s, color .5s}
+.nav .brand{font-family:var(--f-display);font-size:19px;letter-spacing:.01em;text-decoration:none;font-variation-settings:"SOFT" 100,"WONK" 1;font-weight:500;white-space:nowrap}
+.nav .brand i{color:var(--amber);font-style:normal}
+.nav .chapter{margin-left:18px;color:var(--bone-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav .sp{flex:1}
+.nav .ctrl{display:flex;align-items:center;gap:8px}
+.btn{appearance:none;border:1px solid rgba(239,230,212,.28);background:rgba(12,10,9,.35);color:inherit;border-radius:999px;padding:8px 13px;cursor:pointer;
+  font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:500;line-height:1;display:inline-flex;gap:7px;align-items:center;text-decoration:none;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);min-height:34px}
+.btn:hover{border-color:var(--amber)}
+.lang{display:inline-flex;border:1px solid rgba(239,230,212,.28);border-radius:999px;padding:3px;background:rgba(12,10,9,.35);backdrop-filter:blur(6px)}
+.lang button{appearance:none;border:0;background:transparent;color:inherit;font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;padding:6px 9px;border-radius:999px;cursor:pointer;min-width:34px;min-height:28px}
+.lang button[aria-pressed="true"]{background:var(--bone);color:var(--ink)}
+.snd .bars{display:inline-flex;gap:2px;align-items:flex-end;height:11px}
+.snd .bars i{display:block;width:2px;background:currentColor;height:3px;transition:height .3s}
+.snd[aria-pressed="true"] .bars i{animation:eq 1s ease-in-out infinite alternate}
+.snd[aria-pressed="true"] .bars i:nth-child(2){animation-delay:.2s}.snd[aria-pressed="true"] .bars i:nth-child(3){animation-delay:.45s}
+@keyframes eq{from{height:3px}to{height:11px}}
+.cvlink{background:var(--bone);color:var(--ink);border-color:var(--bone)}
+.cvlink:hover{background:var(--amber);border-color:var(--amber)}
+html.day .nav{color:var(--ink);background:linear-gradient(to bottom, rgba(245,239,228,.92), rgba(245,239,228,0))}
+html.day .btn,html.day .lang{border-color:rgba(26,23,20,.25);background:rgba(245,239,228,.6)}
+html.day .lang button[aria-pressed="true"]{background:var(--ink);color:var(--day)}
+html.day .nav .chapter{color:var(--ink-2)}
+html.day .cvlink{background:var(--ink);color:var(--day);border-color:var(--ink)}
+
+/* progress rail */
+.rail{position:fixed;right:calc(var(--gutter) - 6px);top:50%;transform:translateY(-50%);z-index:30;display:flex;flex-direction:column;gap:10px;list-style:none;margin:0;padding:0}
+.rail a{display:flex;align-items:center;justify-content:flex-end;gap:10px;text-decoration:none;color:var(--bone-dim);height:14px}
+.rail a span{opacity:0;transform:translateX(6px);transition:.35s var(--ease);font-size:10px}
+.rail a::after{content:"";width:14px;height:1px;background:currentColor;transition:.35s var(--ease)}
+.rail a:hover span,.rail a:focus-visible span,.rail a[aria-current="true"] span{opacity:1;transform:none}
+.rail a[aria-current="true"]{color:var(--amber)}
+.rail a[aria-current="true"]::after{width:30px}
+html.day .rail a{color:var(--ink-2)}
+html.day .rail a[aria-current="true"]{color:var(--pigment-day)}
+
+/* ---------- story beats ---------- */
+main{position:relative;z-index:5;overflow-x:clip}
+.contact,.daylight{overflow-x:clip}
+.scene{position:relative}
+.beat{position:relative;min-height:100vh;min-height:100svh;display:grid;align-items:center;padding:110px var(--gutter) 80px}
+.beat.tall{min-height:130vh}
+.beat.short{min-height:75vh}
+.card{position:relative;max-width:35rem;isolation:isolate}
+.card::before{content:"";position:absolute;inset:-14% -22% -16% -22%;z-index:-1;pointer-events:none;
+  background:radial-gradient(closest-side, rgba(8,6,5,.78), rgba(8,6,5,.52) 55%, rgba(8,6,5,0));filter:blur(4px)}
+.card.nos::before{display:none}
+.left .card{justify-self:start}
+.right .card{justify-self:end}
+.center .card{justify-self:center;text-align:center}
+.bottom{align-items:end}
+.top{align-items:start;padding-top:120px}
+.kicker{color:var(--amber);display:flex;gap:12px;align-items:center;margin:0 0 18px}
+.kicker::before{content:"";width:26px;height:1px;background:currentColor}
+.center .kicker{justify-content:center}
+.display{font-weight:300;font-size:clamp(44px, 8.2vw, 132px);line-height:.92;letter-spacing:-.025em;margin:0;font-variation-settings:"SOFT" 100,"WONK" 1,"opsz" 144}
+.display em{font-style:italic;color:var(--amber);font-weight:300}
+.h2{font-weight:300;font-size:clamp(34px, 5.4vw, 78px);line-height:.98;letter-spacing:-.02em;margin:0 0 .35em;font-variation-settings:"SOFT" 100,"WONK" 1,"opsz" 144}
+.h2 em{font-style:italic;color:var(--amber)}
+.h3{font-weight:400;font-size:clamp(24px, 2.6vw, 36px);line-height:1.08;letter-spacing:-.01em;margin:0 0 .4em;font-variation-settings:"SOFT" 60,"opsz" 72}
+.lede{font-size:clamp(19px, 1.65vw, 23px);line-height:1.5;color:var(--bone);margin:0 0 1em;font-weight:350}
+p{margin:0 0 1em}
+.muted{color:var(--bone-dim)}
+.meta{color:var(--bone-dim);margin:0 0 10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0;padding:0;list-style:none}
+.chips li{border:1px solid rgba(239,230,212,.3);border-radius:999px;padding:7px 12px;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;background:rgba(10,8,7,.45);line-height:1.3}
+.chips li b{color:var(--amber);font-weight:500}
+.link{display:inline-flex;align-items:center;gap:10px;color:var(--bone);text-decoration:none;border-bottom:1px solid var(--amber);padding:4px 0;font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.link:hover{color:var(--amber)}
+.link .ar{transition:transform .3s var(--ease)}
+.link:hover .ar{transform:translateX(4px)}
+.scrollcue{position:absolute;left:var(--gutter);bottom:28px;display:flex;align-items:center;gap:12px;color:var(--bone-dim)}
+.scrollcue i{display:block;width:1px;height:46px;background:linear-gradient(var(--amber), transparent);animation:cue 2.2s ease-in-out infinite;transform-origin:top}
+@keyframes cue{0%{transform:scaleY(0)}50%{transform:scaleY(1)}100%{transform:scaleY(1);opacity:0}}
+
+/* hero */
+.hero-name{font-weight:300;font-size:clamp(15px,1.4vw,18px);margin:0 0 22px;color:var(--bone-dim);font-family:var(--f-mono);letter-spacing:.16em;text-transform:uppercase}
+html:not(.gl) .hero-name{font-family:var(--f-display);text-transform:none;letter-spacing:-.02em;font-size:clamp(52px,10vw,150px);line-height:.9;color:var(--bone);font-variation-settings:"SOFT" 100,"WONK" 1,"opsz" 144}
+.hero .card{max-width:44rem}
+.role-line{margin-top:26px;padding-top:16px;border-top:1px solid rgba(239,230,212,.18);color:var(--bone-dim)}
+
+/* timeline entries (signal years) */
+.entry{display:block}
+.entry .yr{font-family:var(--f-display);font-weight:300;font-size:clamp(46px,6vw,92px);line-height:.9;letter-spacing:-.03em;color:var(--parchment);font-variation-settings:"SOFT" 100,"opsz" 144;margin:0 0 18px}
+.entry .yr span{color:var(--smoke)}
+.entry .org{grid-column:1/-1}
+
+/* books */
+.book-list{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:14px}
+.book-list li{display:grid;grid-template-columns:1fr auto;gap:2px 14px;padding:12px 0;border-top:1px solid rgba(239,230,212,.16)}
+.book-list .t{font-size:21px;letter-spacing:.01em}
+.book-list .s{grid-column:1/-1;color:var(--bone-dim);font-size:15.5px}
+.tag{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);align-self:center}
+.tag.red{color:#e8705f}
+
+/* radio */
+.hint{display:inline-flex;align-items:center;gap:10px;color:var(--bone-dim);margin-top:8px}
+.hint .ring{width:16px;height:16px;border-radius:50%;border:1px solid var(--amber);position:relative}
+.hint .ring::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:1px solid rgba(240,162,76,.5);animation:rng 2s ease-out infinite}
+@keyframes rng{from{transform:scale(.4);opacity:1}to{transform:scale(1.4);opacity:0}}
+
+/* chambers */
+.venture .where{color:var(--bone-dim)}
+.venture .swatch{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:10px;box-shadow:0 0 14px 2px currentColor;background:currentColor;vertical-align:middle}
+
+/* crew */
+.crew{list-style:none;margin:16px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:0 26px}
+.crew li{padding:11px 0;border-top:1px solid rgba(239,230,212,.16)}
+.crew b{display:block;font-weight:450;font-size:17.5px;line-height:1.25}
+.crew span{display:block;color:var(--bone-dim);font-size:14.5px;line-height:1.35;margin-top:3px}
+.crew li.human b{color:var(--amber)}
+.method{font-size:clamp(28px,3.6vw,52px);line-height:1.08;font-weight:300;letter-spacing:-.015em;margin:0 0 .6em;font-variation-settings:"SOFT" 100,"WONK" 1,"opsz" 144}
+.method span{display:block}
+.method span:nth-child(odd){color:var(--parchment)}
+.method span:nth-child(even){color:var(--amber);font-style:italic}
+
+/* ---------- daylight ---------- */
+.daylight{position:relative;z-index:6;background:var(--day);color:var(--ink);padding:140px var(--gutter) 120px;color-scheme:light}
+.daylight::before{content:"";position:absolute;left:0;right:0;top:-38vh;height:38vh;background:linear-gradient(to bottom, rgba(245,239,228,0), var(--day));pointer-events:none}
+.daylight .wrap{max-width:1180px;margin:0 auto}
+.daylight .kicker{color:var(--pigment-day)}
+.daylight .h2 em{color:var(--pigment-day)}
+.daylight .muted{color:var(--ink-2)}
+.d-intro{display:grid;grid-template-columns:1.25fr 1fr;gap:48px;align-items:end;margin-bottom:84px}
+.d-intro .display{font-size:clamp(42px,6.4vw,104px);color:var(--ink)}
+.d-intro .display em{color:var(--pigment-day)}
+.note{border-left:2px solid var(--pigment-day);padding:4px 0 4px 16px;color:var(--ink-2);font-size:16.5px}
+.d-sec{margin:0 0 96px}
+.d-sec > header{display:grid;grid-template-columns:220px 1fr;gap:24px;align-items:baseline;border-top:1px solid var(--ink);padding-top:16px;margin-bottom:34px}
+.d-sec > header .mono{color:var(--ink-2)}
+.d-sec > header h3{margin:0;font-weight:350;font-size:clamp(26px,3vw,40px);letter-spacing:-.01em;line-height:1.05;font-variation-settings:"SOFT" 80,"opsz" 96}
+/* pipeline */
+.pipe{position:relative}
+.pipe ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,1fr);gap:0;counter-reset:st}
+.pipe li{position:relative;padding:62px 18px 0 0;counter-increment:st}
+.pipe li::before{content:"0" counter(st);position:absolute;top:0;left:0;font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;color:var(--ink-2)}
+.pipe li::after{content:"";position:absolute;top:30px;left:0;right:0;height:2px;background:var(--ink)}
+.pipe li:last-child::after{right:18px}
+.pipe .node{position:absolute;top:22px;left:0;width:18px;height:18px;border-radius:50%;background:var(--day);border:2px solid var(--ink);z-index:2}
+.pipe li:last-child .node{background:var(--pigment-day);border-color:var(--pigment-day)}
+.pipe .gate{position:absolute;top:24px;right:4px;width:14px;height:14px;transform:rotate(45deg);background:var(--pigment-day);z-index:2}
+.pipe li:last-child .gate{display:none}
+.pipe h4{margin:0 0 8px;font-weight:450;font-size:21px;line-height:1.1;letter-spacing:-.005em}
+.pipe p{font-size:15px;line-height:1.45;color:var(--ink-2);margin:0}
+.legend{display:flex;gap:26px;flex-wrap:wrap;margin-top:30px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:10px}
+.legend .g{width:11px;height:11px;transform:rotate(45deg);background:var(--pigment-day)}
+.legend .n{width:13px;height:13px;border-radius:50%;border:2px solid var(--ink)}
+/* plan */
+.plan{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-left:1px solid var(--rule)}
+.plan article{padding:0 26px 6px;border-right:1px solid var(--rule)}
+.plan .day{font-family:var(--f-display);font-weight:300;font-size:clamp(64px,7vw,108px);line-height:.85;letter-spacing:-.04em;color:var(--pigment-day);font-variation-settings:"SOFT" 100,"WONK" 1,"opsz" 144}
+.plan .day small{font-size:.28em;letter-spacing:.02em;color:var(--ink-2);margin-left:6px;font-family:var(--f-mono);font-weight:400}
+.plan h4{margin:12px 0 10px;font-weight:450;font-size:20px}
+.plan ul{margin:0;padding:0 0 0 18px;color:var(--ink-2);font-size:16px}
+.plan li{margin:0 0 8px}
+/* principles */
+.princ{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;list-style:none;margin:0;padding:0}
+.princ li{border-top:2px solid var(--ink);padding-top:16px}
+.princ b{display:block;font-weight:450;font-size:22px;line-height:1.1;margin-bottom:10px;font-variation-settings:"SOFT" 80}
+.princ span{color:var(--ink-2);font-size:16px;line-height:1.5}
+/* registry */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--rule);background:#fbf8f2;-webkit-overflow-scrolling:touch}
+.tbl-cap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.badge{display:inline-flex;gap:8px;align-items:center;border:1px dashed var(--pigment-day);color:var(--pigment-day);padding:6px 10px;font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:15px}
+caption{text-align:left}
+th,td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--rule);vertical-align:top}
+thead th{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:500;color:var(--ink-2);background:var(--day-2)}
+tbody tr:last-child td{border-bottom:0}
+.risk{display:inline-flex;align-items:center;gap:7px;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.risk i{width:8px;height:8px;border-radius:50%;background:#7a8f5a}
+.risk.m i{background:#c9853a}.risk.h i{background:var(--pigment-day)}
+.stage{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--ink);padding:3px 7px;white-space:nowrap}
+/* fit */
+.fit{display:grid;grid-template-columns:repeat(3,1fr);gap:22px 34px;list-style:none;padding:0;margin:0}
+.fit li{font-size:17px;line-height:1.45;color:var(--ink-2);padding-left:22px;position:relative}
+.fit li::before{content:"";position:absolute;left:0;top:.55em;width:10px;height:10px;border-radius:50%;background:var(--ochre)}
+.fit li b{color:var(--ink);font-weight:450}
+
+/* ---------- contact ---------- */
+.contact{position:relative;z-index:6;min-height:100vh;min-height:100svh;display:grid;align-items:end;padding:120px var(--gutter) 70px}
+.contact::before{content:"";position:absolute;left:0;right:0;top:0;height:26vh;background:linear-gradient(var(--day), rgba(245,239,228,0));pointer-events:none}
+.contact .card{max-width:56rem}
+.contact .display{font-size:clamp(46px,8vw,128px)}
+.c-grid{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.big-btn{display:inline-flex;align-items:center;gap:12px;padding:16px 22px;border-radius:999px;text-decoration:none;font-family:var(--f-mono);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;border:1px solid rgba(239,230,212,.45);background:rgba(12,9,7,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);cursor:pointer;color:var(--bone);min-height:48px}
+.big-btn.primary{background:var(--bone);color:var(--ink);border-color:var(--bone)}
+.big-btn:hover{border-color:var(--amber)}
+.big-btn.primary:hover{background:var(--amber);border-color:var(--amber)}
+.email{font-family:var(--f-mono);font-size:15px;letter-spacing:.04em;color:var(--amber)}
+.foot{margin-top:46px;padding-top:16px;border-top:1px solid rgba(239,230,212,.2);color:var(--bone-dim);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+/* ---------- CV ---------- */
+.cv{position:relative;z-index:7;background:var(--day);color:var(--ink);color-scheme:light}
+.cv > summary{list-style:none;cursor:pointer;padding:28px var(--gutter);display:flex;justify-content:space-between;align-items:center;gap:16px;border-top:1px solid var(--rule)}
+.cv > summary::-webkit-details-marker{display:none}
+.cv > summary .h3{margin:0}
+.cv > summary .pm{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--ink);border-radius:999px;padding:9px 14px;white-space:nowrap}
+.cv[open] > summary .pm .o{display:none}
+.cv:not([open]) > summary .pm .c{display:none}
+.cv-body{max-width:1000px;margin:0 auto;padding:10px var(--gutter) 110px;font-size:16.5px;line-height:1.55}
+.cv-body h3{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--pigment-day);font-weight:500;margin:46px 0 14px;padding-top:12px;border-top:1px solid var(--ink)}
+.cv-head{display:grid;gap:6px;margin-bottom:10px}
+.cv-head .nm{font-size:clamp(34px,5vw,56px);line-height:1;font-weight:350;letter-spacing:-.02em;margin:0}
+.cv-head .ln{color:var(--ink-2)}
+.cv-job{display:grid;grid-template-columns:200px 1fr;gap:4px 28px;padding:14px 0;border-bottom:1px solid var(--rule)}
+.cv-job .when{font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;color:var(--ink-2);padding-top:4px}
+.cv-job h4{margin:0;font-size:18.5px;font-weight:500}
+.cv-job .at{color:var(--ink-2)}
+.cv-job ul{margin:6px 0 0;padding-left:18px;color:#2f2a25}
+.cv-job li{margin:0 0 4px}
+.cv-body a{color:var(--pigment-day)}
+
+/* ---------- motion / scroll-reveal ---------- */
+html.gl .rv{opacity:0;transform:translate3d(0,26px,0);transition:opacity 1s var(--ease), transform 1.2s var(--ease)}
+html.gl .rv.in{opacity:1;transform:none}
+html.gl .rv.d1{transition-delay:.08s}html.gl .rv.d2{transition-delay:.16s}html.gl .rv.d3{transition-delay:.24s}
+
+/* no-webgl fallback: content becomes a warm dark editorial page */
+html.nogl #stage{background:
+  radial-gradient(70% 50% at 80% 10%, rgba(201,133,58,.22), transparent 70%),
+  radial-gradient(60% 50% at 10% 80%, rgba(180,54,42,.14), transparent 70%), var(--basalt)}
+html.nogl .beat{min-height:auto;padding-top:90px;padding-bottom:90px}
+
+@media (max-width: 900px){
+  .rail{display:none}
+  .nav .chapter{display:none}
+  .d-intro{grid-template-columns:1fr;gap:26px}
+  .d-sec > header{grid-template-columns:1fr;gap:6px}
+  .pipe ol{grid-template-columns:1fr;gap:0}
+  .pipe li{padding:0 0 26px 46px;min-height:auto}
+  .pipe li::before{position:static;display:block;margin-bottom:4px}
+  .pipe li::after{top:0;bottom:0;left:8px;right:auto;width:2px;height:auto}
+  .pipe li:last-child::after{bottom:auto;height:18px}
+  .pipe .node{top:2px;left:0}
+  .pipe .gate{top:auto;bottom:6px;left:2px;right:auto}
+  .plan{grid-template-columns:1fr;border-left:0}
+  .plan article{border-right:0;border-top:1px solid var(--rule);padding:18px 0}
+  .princ{grid-template-columns:1fr 1fr}
+  .fit{grid-template-columns:1fr}
+  .cv-job{grid-template-columns:1fr}
+}
+@media (max-width: 640px){
+  body{font-size:17px}
+  .nav{padding:10px 16px;gap:8px}
+  .nav .brand{font-size:16px}
+  .btn{padding:7px 10px;font-size:10px;letter-spacing:.1em}
+  .snd .lbl{display:none}
+  .lang button{padding:5px 7px;min-width:30px}
+  .beat{padding:96px 16px 56px;align-items:end}
+  .beat.top{align-items:end}
+  .card,.hero .card{max-width:100%}
+  .card::before{inset:-30px -16px -24px -16px;background:linear-gradient(to top, rgba(8,6,5,.86), rgba(8,6,5,.66) 70%, rgba(8,6,5,0));filter:none;border-radius:0}
+  .right .card,.left .card{justify-self:stretch}
+  .crew{grid-template-columns:1fr}
+  .crew li{padding:8px 0}
+  .princ{grid-template-columns:1fr}
+  .daylight{padding:110px 16px 90px}
+  .contact{padding:110px 16px 50px}
+  .cv > summary{padding:22px 16px}
+  .cv-body{padding:6px 16px 90px}
+  .scrollcue{left:16px}
+  .entry .yr{font-size:52px}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  html.gl .rv{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#cv" data-cv-open data-i18n="skipMain">Skip to CV</a>
+
+<div id="stage" role="img" aria-label="A 3D cave lit by firelight. Scrolling moves one camera deeper through the cave and out into daylight." data-i18n-aria="stageAria"></div>
+<div id="veil" aria-hidden="true"></div>
+
+<div id="loader" aria-hidden="true"><div class="l-in"><div class="flame"></div><span class="mono" data-i18n="loading">Lighting the fire</span></div></div>
+
+<header class="nav">
+  <a class="brand" href="#top" aria-label="Cem Guler — top">Cem <i>/</i> Guler</a>
+  <span class="chapter mono" id="chapter" aria-live="polite">01 — The fire</span>
+  <span class="sp"></span>
+  <div class="ctrl">
+    <div class="lang" role="group" aria-label="Language / Langue">
+      <button type="button" data-lang="en" aria-pressed="true" lang="en">EN</button>
+      <button type="button" data-lang="fr" aria-pressed="false" lang="fr">FR</button>
+    </div>
+    <button type="button" class="btn snd" id="sound" aria-pressed="false"><span class="bars" aria-hidden="true"><i></i><i></i><i></i></span><span class="lbl" data-i18n="soundOff">Sound off</span><span class="sr-only" data-i18n="soundSr">Toggle ambient sound</span></button>
+    <a class="btn cvlink" href="#cv" data-cv-open data-i18n="skipCv">Skip to CV</a>
+  </div>
+</header>
+
+<nav aria-label="Chapters" data-i18n-aria="chaptersAria">
+<ol class="rail" id="rail">
+  <li><a href="#top" data-i18n-html="r1"><span class="mono">The fire</span></a></li>
+  <li><a href="#signal" data-i18n-html="r2"><span class="mono">Signal years</span></a></li>
+  <li><a href="#books" data-i18n-html="r3"><span class="mono">Books</span></a></li>
+  <li><a href="#terrible" data-i18n-html="r4"><span class="mono">The Terrible</span></a></li>
+  <li><a href="#radio" data-i18n-html="r5"><span class="mono">Radio Days</span></a></li>
+  <li><a href="#chambers" data-i18n-html="r6"><span class="mono">Chambers</span></a></li>
+  <li><a href="#studio" data-i18n-html="r7"><span class="mono">Around the fire</span></a></li>
+  <li><a href="#enable" data-i18n-html="r8"><span class="mono">Daylight</span></a></li>
+  <li><a href="#contact" data-i18n-html="r9"><span class="mono">Contact</span></a></li>
+</ol>
+</nav>
+
+<main id="top">
+<!-- 01 HERO -->
+<section class="scene hero" id="hero" data-scene="0" data-chapter="c1" aria-labelledby="h-hero">
+  <div class="beat left tall">
+    <div class="card">
+      <h1 class="hero-name rv" id="h-hero">Cem (Jack) Guler</h1>
+      <p class="display rv d1" data-i18n-html="heroTag">Stories first.<br><em>Then the machines.</em></p>
+      <p class="lede rv d2" style="margin-top:28px" data-i18n="heroPos">Applied-AI innovation leader for media. Seventeen years carrying stories to the public across every new medium — broadcast, documentary, XR, now AI — always with a human answerable for the result.</p>
+      <p class="mono role-line rv d3" data-i18n="heroRole">A portfolio for the Director, AI Innovation Enablement role · CBC/Radio-Canada · Ottawa, Canada</p>
+    </div>
+    <div class="scrollcue mono" aria-hidden="true"><i></i><span data-i18n="cue">Scroll — the light will move</span></div>
+  </div>
+  <div class="beat right bottom">
+    <div class="card">
+      <p class="kicker mono rv" data-i18n="heroK2">The New Cave</p>
+      <p class="h2 rv d1" data-i18n-html="heroBig">Every medium projects light onto a wall. <em>AI is the most powerful projector yet.</em></p>
+      <p class="lede rv d2" data-i18n="heroJob">The job of AI enablement at a public broadcaster is to show people the fire — not just the shadows.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 02 SIGNAL YEARS -->
+<section class="scene" id="signal" data-scene="1" data-chapter="c2" aria-labelledby="h-signal">
+  <div class="beat left short">
+    <div class="card">
+      <p class="kicker mono rv" data-i18n="sigK">02 — Signal years · Istanbul</p>
+      <h2 class="h2 rv d1" id="h-signal" data-i18n-html="sigH">Before the machines, <em>the signal.</em></h2>
+      <p class="lede rv d2" data-i18n="sigP">Live breaking news. Sourcing and verification. Stories shot and edited for air, then directed for an international news channel — the habits a public broadcaster runs on.</p>
+    </div>
+  </div>
+  <div class="beat right">
+    <article class="card entry">
+      <p class="yr rv">2008<span>–</span>2011</p>
+      <p class="kicker mono org rv d1">TRT 2</p>
+      <h3 class="h3 rv d1" data-i18n="sig1t">Video Journalist</h3>
+      <p class="muted rv d2" data-i18n="sig1p">Live breaking news; sourcing and verification; shooting and editing for air.</p>
+    </article>
+  </div>
+  <div class="beat right">
+    <article class="card entry">
+      <p class="yr rv">2011<span>–</span>2013</p>
+      <p class="kicker mono org rv d1">TRT World</p>
+      <h3 class="h3 rv d1" data-i18n="sig2t">Multimedia Journalist</h3>
+      <p class="muted rv d2" data-i18n-html="sig2p">Nominated, <b>Best Photograph</b> — Courage in Journalism Awards (Journalists Association).</p>
+    </article>
+  </div>
+  <div class="beat right">
+    <article class="card entry">
+      <p class="yr rv">2013<span>–</span>2015</p>
+      <p class="kicker mono org rv d1">TRT World</p>
+      <h3 class="h3 rv d1" data-i18n="sig3t">Broadcast Producer / Director</h3>
+      <p class="muted rv d2" data-i18n="sig3p">Directed TV shows for an international news channel — production schedules, budgets, quality and editorial-standards compliance. Project Coordinator, MIPTV/MIPDOC Cannes 2013.</p>
+    </article>
+  </div>
+  <div class="beat right">
+    <article class="card entry">
+      <p class="yr rv">2015<span>–</span>2016</p>
+      <p class="kicker mono org rv d1">Pollux Films · Istanbul</p>
+      <h3 class="h3 rv d1" data-i18n="sig4t">Creative Director</h3>
+      <p class="muted rv d2" data-i18n="sig4p">Investigative and human-interest stories across video, audio and graphics.</p>
+    </article>
+  </div>
+</section>
+
+<!-- 03 BOOKS -->
+<section class="scene" id="books" data-scene="2" data-chapter="c3" aria-labelledby="h-books">
+  <div class="beat left">
+    <div class="card">
+      <p class="kicker mono rv" data-i18n="bkK">03 — The book</p>
+      <h2 class="display rv d1" id="h-books" style="font-size:clamp(44px,7vw,112px)">THE NEW <em>CAVE</em></h2>
+      <p class="mono muted rv d1" style="margin:16px 0 22px">Reality, Responsibility &amp; the Human After AI</p>
+      <p class="lede rv d2" data-i18n="bkP">What must remain human as AI grows capable: judgment, expertise and accountability — across classrooms, medicine, courts and work. Plato's cave is the metaphor. This site walks through it.</p>
+      <a class="link rv d3" href="https://a.co/d/001kY225" target="_blank" rel="noopener" data-i18n-html="bkLink">Read it on Amazon <span class="ar" aria-hidden="true">→</span></a>
+    </div>
+  </div>
+  <div class="beat left">
+    <div class="card">
+      <p class="kicker mono rv" data-i18n="bkK2">On the ledge</p>
+      <h3 class="h2 rv d1" data-i18n-html="bkH2">Three books, <em>one question:</em> what stays human?</h3>
+      <ul class="book-list rv d2">
+        <li><span class="t">THE NEW CAVE</span><span class="tag" data-i18n="pub">Published</span><span class="s" data-i18n="b1s">Reality, Responsibility &amp; the Human After AI.</span></li>
+        <li><span class="t">BEFORE THE HAND</span><span class="tag red" data-i18n="forth">Forthcoming</span><span class="s" data-i18n="b2s">Forthcoming book.</span></li>
+        <li><span class="t">THE TERRIBLE</span><span class="tag red" data-i18n="forth2">Forthcoming</span><span class="s" data-i18n="b3s">Companion book to the documentary — about two and a half years of research across 10,000+ archival sources and period newspapers.</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="beat right">
+    <div class="card">
+      <p class="kicker mono rv" style="color:#e8705f" data-i18n="bhK">Forthcoming</p>
+      <h3 class="display rv d1" style="font-size:clamp(40px,6vw,96px)">BEFORE <em style="color:#e8705f">THE HAND</em></h3>
+      <p class="lede rv d2" style="margin-top:18px" data-i18n="bhP">Some of the earliest marks people left on cave walls were their own hands, outlined in pigment. A forthcoming book.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 04 THE TERRIBLE -->
+<section class="scene" id="terrible" data-scene="3" data-chapter="c4" aria-labelledby="h-terrible">
+  <div class="beat left short">
+    <div class="card">
+      <p class="kicker mono rv" data-i18n="trK">04 — Documentary</p>
+      <p class="h2 rv d1" data-i18n-html="trA"><em>10,000+</em> archival sources. Period newspapers. About two and a half years of research.</p>
+    </div>
+  </div>
+  <div class="beat center top tall">
+    <div class="card nos" style="max-width:40rem">
+      <h2 class="sr-only" id="h-terrible">THE TERRIBLE</h2>
+      <p class="mono muted rv" data-i18n="trB">Out of the paper, a title — and a route across three continents.</p>
+    </div>
+  </div>
+  <div class="beat left bottom">
+    <div class="card">
+      <p class="kicker mono rv">THE TERRIBLE</p>
+      <p class="lede rv d1" data-i18n-html="trP">A documentary on the Ottoman wrestler <b>Yusuf Ismail — “Koca Yusuf”</b> — who became a legend in the West in the 1890s.</p>
+      <ul class="chips rv d2">
+        <li data-i18n-html="ch1"><b>Main competition</b> · Vox Popular Media Arts Festival</li>
+        <li data-i18n-html="ch2"><b>Narrated by</b> Adrian Harewood</li>
+        <li data-i18n-html="ch3"><b>Screened</b> · US · Germany · Toronto · Ottawa</li>
+        <li data-i18n-html="ch4"><b>Filmed</b> · UK · US · Canada · Turkey</li>
+        <li data-i18n-html="ch5"><b>Companion book</b> · forthcoming</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 05 RADIO DAYS -->
+<section class="scene" id="radio" data-scene="4" data-chapter="c5" aria-labelledby="h-radio">
+  <div class="beat left top">
+    <div class="card">
+      <p class="kicker mono rv" data-i18n="rdK">05 — Creator &amp; host</p>
+      <h2 class="display rv d1" id="h-radio" style="font-size:clamp(48px,7.5vw,120px)">Radio <em>Days</em></h2>
+      <p class="lede rv d2" style="margin-top:22px" data-i18n="rdP">He went to radio stations to tell the untold, behind-the-scenes stories of radio people — from the era when radio voices were more famous than television stars — and to explore the medium's history and curiosities.</p>
+      <p class="hint mono rv d3"><span class="ring" aria-hidden="true"></span><span data-i18n="rdHint">Touch the water. Sound is off until you turn it on.</span></p>
+    </div>
+  </div>
+  <div class="beat short"></div>
+</section>
+
+<!-- 06 CHAMBERS -->
+<section class="scene" id="chambers" data-scene="5" data-chapter="c6" aria-labelledby="h-chambers">
+  <div class="beat left short">
+    <div class="card">
+      <p class="kicker mono rv" data-i18n="chK">06 — Side chambers</p>
+      <h2 class="h2 rv d1" id="h-chambers" data-i18n-html="chH">Each venture, <em>a different light.</em></h2>
+      <p class="lede rv d2" data-i18n="chP">Where the storytelling moved into new media — XR, learning, applied AI, immersive space, film.</p>
+    </div>
+  </div>
+  <div class="beat right venture">
+    <article class="card">
+      <p class="mono where rv"><span class="swatch" style="color:#8c7dff" aria-hidden="true"></span><span data-i18n="v1w">New York · remote · 2023–2026</span></p>
+      <h3 class="h2 rv d1">Everstar XR</h3>
+      <p class="mono muted rv d1" data-i18n="v1r">Creative Director &amp; Producer</p>
+      <p class="rv d2" data-i18n="v1p">Directed and produced Unreal Engine animated films built as XR experiences, released in VR and 3D versions. Launched a three-episode AI-native animated series — storyboards, environments, video generation and original music produced end-to-end through AI pipelines, with human creative direction throughout.</p>
+    </article>
+  </div>
+  <div class="beat left venture">
+    <article class="card">
+      <p class="mono where rv"><span class="swatch" style="color:#3fd0bd" aria-hidden="true"></span><span data-i18n="v2w">London · remote · 2023</span></p>
+      <h3 class="h2 rv d1">MetaCampus</h3>
+      <p class="mono muted rv d1" data-i18n="v2r">Marketing Team Lead</p>
+      <p class="rv d2" data-i18n="v2p">Directed the integration of generative AI tools into marketing campaigns and UX workflows; data-driven iteration; UI/UX reviews and user research; mentored junior staff.</p>
+    </article>
+  </div>
+  <div class="beat right venture">
+    <article class="card">
+      <p class="mono where rv"><span class="swatch" style="color:#c8ee5c" aria-hidden="true"></span><span data-i18n="v3w">Ottawa · 2026–present</span></p>
+      <h3 class="h2 rv d1">GEN:A Labs</h3>
+      <p class="mono muted rv d1" data-i18n="v3r">Founder · Applied-AI innovation, technology &amp; science lab</p>
+      <p class="rv d2" data-i18n="v3p">Youth AI capability-building, SME AI adoption, applied delivery. A staged model — Workflow X-Ray diagnostic, then pilot build, then build-and-transfer — each with a baseline metric and a handover.</p>
+      <a class="link rv d3" href="https://buildgena.ca" target="_blank" rel="noopener">buildgena.ca <span class="ar" aria-hidden="true">→</span></a>
+      <div class="rv d3" style="margin-top:22px;padding-top:18px;border-top:1px solid rgba(237,230,216,.18)">
+        <p class="mono muted" data-i18n="v3bK">Also building · 2026 · prototype</p>
+        <h4 class="h3" style="margin:6px 0 8px">Ottawa Civic Chronicle</h4>
+        <p data-i18n="v3bP">A bilingual EN/FR citizen-journalism platform for Ottawa, built with AI: neighbourhood-level reporting, fact-checking and solutions journalism, live local alerts and reader-submitted stories. Newsroom standards, applied to an AI-built civic product.</p>
+      </div>
+    </article>
+  </div>
+  <div class="beat left venture">
+    <article class="card">
+      <p class="mono where rv"><span class="swatch" style="color:#ffb347" aria-hidden="true"></span><span data-i18n="v4w">Ottawa · 2025–present</span></p>
+      <h3 class="h2 rv d1">Parallax XP</h3>
+      <p class="mono muted rv d1" data-i18n="v4r">Co-Founder · Concept &amp; Creative Direction</p>
+      <p class="rv d2" data-i18n-html="v4p"><i>The Expedition Within</i>: a 90-minute bilingual EN/FR immersive journey — six chambers, five acts: breath, scale, memory, land, migration, legacy. Opening in Ottawa in 2027. This site borrows the idea: one journey, chamber by chamber.</p>
+      <a class="link rv d3" href="https://parallaxxp.ca" target="_blank" rel="noopener">parallaxxp.ca <span class="ar" aria-hidden="true">→</span></a>
+    </article>
+  </div>
+  <div class="beat right venture">
+    <article class="card">
+      <p class="mono where rv"><span class="swatch" style="color:#cfd8ea" aria-hidden="true"></span><span data-i18n="v5w">Ottawa · 2018–present</span></p>
+      <h3 class="h2 rv d1">Silvermoon Pictures</h3>
+      <p class="mono muted rv d1" data-i18n="v5r">Founder &amp; Director</p>
+      <p class="rv d2" data-i18n="v5p">Festival-selected documentaries; commercial films for fashion, technology and finance clients; AI-based video and imagery. Directing a 6th-century historical animated feature in Unreal Engine with MetaHuman, Character Creator 4 and iClone.</p>
+    </article>
+  </div>
+</section>
+
+<!-- 07 STUDIO -->
+<section class="scene" id="studio" data-scene="6" data-chapter="c7" aria-labelledby="h-studio">
+  <div class="beat left">
+    <div class="card">
+      <p class="kicker mono rv" data-i18n="wtK">07 — Ottawa · February 20, 2024</p>
+      <h2 class="h2 rv d1" id="h-studio" data-i18n-html="wtH">The Walrus Talks <em>Cultural Futures</em></h2>
+      <p class="lede rv d2" data-i18n="wtP">Billed as “AI Educator, Filmmaker, and Former Journalist”, speaking at an evening on how AI is affecting Canadian arts and culture.</p>
+      <a class="link rv d3" href="https://youtu.be/ZWjm8mxYdz0" target="_blank" rel="noopener" data-i18n-html="wtLink">Watch: The Journalist's New Frontier – Harnessing Tech to Tell Tomorrow's Stories <span class="ar" aria-hidden="true">→</span></a>
+    </div>
+  </div>
+  <div class="beat right">
+    <div class="card" style="max-width:38rem">
+      <p class="kicker mono rv" data-i18n="crK">The studio · a crew around the fire</p>
+      <h3 class="h2 rv d1" data-i18n-html="crH">Every tool <em>has a job.</em> One human holds the light.</h3>
+      <ul class="crew rv d2">
+        <li><b>Claude &amp; Claude Code</b><span data-i18n="cr1">Thinking partner and builder — drafts, reasoning, code.</span></li>
+        <li><b>OpenAI Codex &amp; ChatGPT</b><span data-i18n="cr2">A second pair of hands — code, review, research.</span></li>
+        <li><b>Gemini · Nano Banana · Veo</b><span data-i18n="cr3">Images and video, from boards to shots.</span></li>
+        <li><b>Unreal · MetaHuman · CC4 · iClone</b><span data-i18n="cr4">Worlds and digital humans.</span></li>
+        <li><b data-i18n="cr5t">AI music · Adobe Creative Suite</b><span data-i18n="cr5">Original score; finishing.</span></li>
+        <li class="human"><b data-i18n="cr6t">Human direction</b><span data-i18n="cr6">Judgment, editorial standards, sign-off. Answerable for the result.</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="beat left">
+    <div class="card">
+      <p class="kicker mono rv" data-i18n="mtK">The method</p>
+      <p class="method rv d1" data-i18n-html="mtLines"><span>Pick one workflow.</span><span>Write down today's number.</span><span>Change one thing.</span><span>Measure again.</span></p>
+      <p class="lede rv d2" data-i18n="mtP">Then write the playbook, so the team can own it.</p>
+      <p class="mono muted rv d3" data-i18n="mtSite">This site was built the same way — with AI coding agents, under his direction.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 08 LEAVING -->
+<section class="scene" id="leaving" data-scene="7" data-chapter="c8" aria-labelledby="h-leaving">
+  <div class="beat center">
+    <div class="card" style="max-width:46rem">
+      <p class="kicker mono rv" data-i18n="lvK">08 — Leaving the cave</p>
+      <h2 class="h2 rv d1" id="h-leaving" data-i18n-html="lvH">Out here, the work is not the shadows. <em>It's the fire, and who holds it.</em></h2>
+    </div>
+  </div>
+  <div class="beat short" aria-hidden="true"></div>
+</section>
+</main>
+
+<!-- DAYLIGHT: enablement proposal -->
+<section class="daylight" id="enable" data-scene="8" data-chapter="c9" aria-labelledby="h-enable">
+  <div class="wrap">
+    <div class="d-intro">
+      <div>
+        <p class="kicker mono" data-i18n="dyK">A proposal · in daylight</p>
+        <h2 class="display" id="h-enable" data-i18n-html="dyH">How I'd run AI enablement at <em>CBC/Radio-Canada</em></h2>
+      </div>
+      <div>
+        <p class="lede" style="color:var(--ink)" data-i18n="dyP">A disciplined pipeline, a shared registry, and people who can see what is moving — built with content and operations leaders, not for them.</p>
+        <p class="note" data-i18n="dyNote">This is my proposal as a candidate — not CBC/Radio-Canada policy. It aligns with the public principles already in place: human accountability, transparency and disclosure, trust.</p>
+      </div>
+    </div>
+
+    <section class="d-sec" aria-labelledby="h-pipe">
+      <header><span class="mono" data-i18n="pK">01 · Pipeline</span><h3 id="h-pipe" data-i18n="pH">From idea to rollout — with a human gate at every stage</h3></header>
+      <div class="pipe" role="figure" aria-labelledby="h-pipe">
+        <ol>
+          <li><span class="node"></span><span class="gate" title="Human sign-off"></span><h4 data-i18n="p1">Intake</h4><p data-i18n="p1d">One front door for every team, in English and French.</p></li>
+          <li><span class="node"></span><span class="gate"></span><h4 data-i18n="p2">Assess</h4><p data-i18n="p2d">Value, risk, effort, editorial sensitivity.</p></li>
+          <li><span class="node"></span><span class="gate"></span><h4 data-i18n="p3">Experiment</h4><p data-i18n="p3d">A baseline metric and an exit criterion — before anything is built.</p></li>
+          <li><span class="node"></span><span class="gate"></span><h4 data-i18n="p4">MVP incubation</h4><p data-i18n="p4d">Small and real, owned by the team that will use it.</p></li>
+          <li><span class="node"></span><span class="gate"></span><h4 data-i18n="p5">Rollout</h4><p data-i18n="p5d">Training with L&amp;D, a playbook, support.</p></li>
+          <li><span class="node"></span><h4 data-i18n="p6">Measure &amp; share</h4><p data-i18n="p6d">Results go back to the registry, the dashboard and case studies.</p></li>
+        </ol>
+        <div class="legend mono"><span><i class="n"></i><span data-i18n="lgS">Stage</span></span><span><i class="g"></i><span data-i18n="lgG">Gate — human editorial / legal / security sign-off where relevant</span></span></div>
+      </div>
+    </section>
+
+    <section class="d-sec" aria-labelledby="h-plan">
+      <header><span class="mono" data-i18n="plK">02 · First 90 days — my proposal</span><h3 id="h-plan" data-i18n="plH">Listen, then build the frame, then show visible work</h3></header>
+      <div class="plan">
+        <article><div class="day">30<small data-i18n="days">days</small></div><h4 data-i18n="d30h">Listen and map</h4>
+          <ul><li data-i18n="d30a">A shared registry of the AI tools and pilots already in use across English and French services.</li><li data-i18n="d30b">Meet content, operations, legal, security, People &amp; Culture and L&amp;D leaders.</li></ul></article>
+        <article><div class="day">60<small data-i18n="days2">days</small></div><h4 data-i18n="d60h">One frame</h4>
+          <ul><li data-i18n="d60a">One intake and assessment framework: value, risk, effort, editorial sensitivity.</li><li data-i18n="d60b">A baseline metric and exit criterion for every pilot.</li><li data-i18n="d60c">A lightweight responsible-AI playbook aligned with existing CBC/Radio-Canada principles — human accountability, disclosure.</li></ul></article>
+        <article><div class="day">90<small data-i18n="days3">days</small></div><h4 data-i18n="d90h">Visible work</h4>
+          <ul><li data-i18n="d90a">Two or three visible pilots chosen with content and operations leaders — not for them.</li><li data-i18n="d90b">AI-literacy sessions co-built with L&amp;D.</li><li data-i18n="d90c">A pipeline dashboard — intake → experiment → MVP → rollout — so leadership can see what's moving.</li></ul></article>
+      </div>
+    </section>
+
+    <section class="d-sec" aria-labelledby="h-princ">
+      <header><span class="mono" data-i18n="prK">03 · Principles</span><h3 id="h-princ" data-i18n="prH">Trust is the most precious asset</h3></header>
+      <ul class="princ">
+        <li><b data-i18n="pr1">Human accountability</b><span data-i18n="pr1d">No journalism without direct human involvement. A named person answers for every AI-assisted result.</span></li>
+        <li><b data-i18n="pr2">Disclosure</b><span data-i18n="pr2d">Audiences are told when and how AI is used. Transparency is part of the product.</span></li>
+        <li><b data-i18n="pr3">Bilingual by default</b><span data-i18n="pr3d">Tools, training and playbooks built for English and French services from day one.</span></li>
+        <li><b data-i18n="pr4">Trust</b><span data-i18n="pr4d">Every pilot is judged against it — with legal, security and governance at the table, and collaboration over competition.</span></li>
+      </ul>
+    </section>
+
+    <section class="d-sec" aria-labelledby="h-reg">
+      <header><span class="mono" data-i18n="rgK">04 · AI registry</span><h3 id="h-reg" data-i18n="rgH">One shared register of tools, pilots and initiatives</h3></header>
+      <div class="tbl-cap"><span class="badge" data-i18n="rgBadge">Example template — illustrative rows, not real data</span><span class="mono muted" data-i18n="rgSc">Scroll →</span></div>
+      <div class="tbl-wrap" tabindex="0" role="region" aria-labelledby="h-reg">
+        <table>
+          <caption class="sr-only" data-i18n="rgCap">Example AI registry template with illustrative rows</caption>
+          <thead><tr><th data-i18n="th1">Tool / initiative</th><th data-i18n="th2">Owner</th><th data-i18n="th3">Stage</th><th data-i18n="th4">Risk tier</th><th data-i18n="th5">Baseline → metric</th><th data-i18n="th6">Human gate</th></tr></thead>
+          <tbody>
+            <tr><td data-i18n="r1a">Transcription assist for archive audio</td><td data-i18n="r1b">Archives team (example)</td><td><span class="stage" data-i18n="r1c">Experiment</span></td><td><span class="risk"><i></i><span data-i18n="low">Low</span></span></td><td data-i18n="r1e">Minutes to a searchable transcript</td><td data-i18n="r1f">Editorial spot-check</td></tr>
+            <tr><td data-i18n="r2a">Bilingual summary drafts for internal briefings</td><td data-i18n="r2b">Operations (example)</td><td><span class="stage" data-i18n="r2c">Assess</span></td><td><span class="risk m"><i></i><span data-i18n="med">Medium</span></span></td><td data-i18n="r2e">Time to first draft; correction rate</td><td data-i18n="r2f">Named editor signs off</td></tr>
+            <tr><td data-i18n="r3a">Metadata tagging for the video library</td><td data-i18n="r3b">Digital (example)</td><td><span class="stage" data-i18n="r3c">MVP incubation</span></td><td><span class="risk"><i></i><span data-i18n="low2">Low</span></span></td><td data-i18n="r3e">Search success rate</td><td data-i18n="r3f">Sample review before rollout</td></tr>
+            <tr><td data-i18n="r4a">Audience-facing assistant pilot</td><td data-i18n="r4b">Product (example)</td><td><span class="stage" data-i18n="r4c">Intake</span></td><td><span class="risk h"><i></i><span data-i18n="high">High</span></span></td><td data-i18n="r4e">Accuracy on a test set; audience complaints</td><td data-i18n="r4f">Editorial + legal + security</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="d-sec" aria-labelledby="h-fit" style="margin-bottom:0">
+      <header><span class="mono" data-i18n="ftK">05 · What I bring</span><h3 id="h-fit" data-i18n="ftH">A bridge between the newsroom and the machine room</h3></header>
+      <ul class="fit">
+        <li data-i18n-html="ft1"><b>Broadcast DNA.</b> TRT 2 and TRT World — live news, verification, editorial standards.</li>
+        <li data-i18n-html="ft2"><b>Editorial ↔ engineering.</b> Directs AI production pipelines hands-on, from storyboard to shipped work.</li>
+        <li data-i18n-html="ft3"><b>Responsible AI, in writing.</b> THE NEW CAVE — on judgment, expertise and accountability after AI.</li>
+        <li data-i18n-html="ft4"><b>AI literacy.</b> Youth capability-building and SME adoption at GEN:A Labs; community tech-and-art roundtables.</li>
+        <li data-i18n-html="ft5"><b>Thought leadership.</b> The Walrus Talks; author; documentary filmmaker.</li>
+        <li data-i18n-html="ft6"><b>Measured pilots.</b> Baseline metric and handover at every stage — the same discipline this role asks for.</li>
+      </ul>
+    </section>
+  </div>
+</section>
+
+<!-- 09 CONTACT -->
+<section class="contact" id="contact" data-scene="9" data-chapter="c10" aria-labelledby="h-contact">
+  <div class="card">
+    <p class="kicker mono rv" data-i18n="ctK">09 — At the mouth of the cave</p>
+    <h2 class="display rv d1" id="h-contact" data-i18n-html="ctH">Come out <em>into the light.</em></h2>
+    <p class="lede rv d2" style="margin-top:22px" data-i18n="ctP">Cem (Jack) Guler · Ottawa, Ontario, Canada</p>
+    <p class="rv d2"><span class="mono muted" data-i18n="ctEmail">Email</span>&nbsp;&nbsp;<a class="email" href="mailto:jjackguler@gmail.com">jjackguler@gmail.com</a></p>
+    <div class="c-grid rv d3">
+      <a class="big-btn primary" id="cvPdf" href="Cem_Guler_Resume.pdf" download data-i18n-html="ctPdf">Download CV (PDF) <span aria-hidden="true">↓</span></a>
+      <script>
+      (function(){
+        var a=document.getElementById('cvPdf');
+        if(!a||!window.claude||!window.claude.use) return;
+        var dl=null;
+        window.claude.use('downloads').then(function(ns){dl=ns;}).catch(function(){});
+        a.addEventListener('click',function(e){
+          if(!dl) return;
+          e.preventDefault();
+          fetch(a.getAttribute('href')).then(function(r){return r.blob();})
+            .then(function(b){return dl.save({filename:'Cem_Guler_Resume.pdf',data:b});})
+            .catch(function(){});
+        });
+      })();
+      </script>
+      <a class="big-btn" href="https://www.linkedin.com/in/jackguler" target="_blank" rel="noopener">LinkedIn · jackguler <span aria-hidden="true">↗</span></a>
+      <a class="big-btn" href="#cv" data-cv-open data-i18n-html="ctCv">Read the full CV <span aria-hidden="true">↓</span></a>
+    </div>
+    <div class="foot mono"><span data-i18n="ftA">Built with AI coding agents, under human direction. Every image is generated in code — no stock, no logos.</span><span>© Cem Guler</span></div>
+  </div>
+</section>
+
+<!-- CV (plain HTML, readable without WebGL) -->
+<details class="cv" id="cv">
+  <summary><span class="h3" data-i18n="cvSum">Curriculum vitae — full text</span><span class="pm"><span class="o" data-i18n="cvOpen">Open</span><span class="c" data-i18n="cvClose">Close</span></span></summary>
+  <div class="cv-body">
+    <div class="cv-head">
+      <p class="nm">Cem (Jack) Guler</p>
+      <p class="ln" data-i18n="cvHead">Applied-AI innovation leader for media · public-interest broadcasting · AI literacy &amp; responsible adoption</p>
+      <p class="ln mono" style="font-size:12px;letter-spacing:.06em">Ottawa, ON, Canada · <a href="mailto:jjackguler@gmail.com">jjackguler@gmail.com</a> · 613-979-4951 · <a href="https://www.linkedin.com/in/jackguler" target="_blank" rel="noopener">linkedin.com/in/jackguler</a></p>
+    </div>
+    <p data-i18n="cvSummary">Seventeen years carrying stories to the public across every new medium — broadcast, documentary, XR, now AI — always with a human answerable for the result.</p>
+
+    <h3 data-i18n="cvExp">Experience</h3>
+    <div class="cv-job"><div class="when" data-i18n="j1w">Jan 2026 – present</div><div><h4 data-i18n="j1t">Founder — GEN:A Labs</h4><div class="at">Ottawa · <a href="https://buildgena.ca" target="_blank" rel="noopener">buildgena.ca</a></div><ul>
+      <li data-i18n="j1a">Applied-AI innovation, technology &amp; science lab: youth AI capability-building, SME AI adoption, applied delivery.</li>
+      <li data-i18n="j1b">Staged operating model: Workflow X-Ray diagnostic → pilot build → build-and-transfer, each with a baseline metric and a handover.</li>
+      <li data-i18n="j1c">Productized AI workflows — AI receptionist, document-to-record, automated follow-up — validated internally before client deployment.</li></ul></div></div>
+    <div class="cv-job"><div class="when" data-i18n="j1bw">May 2026 – present</div><div><h4 data-i18n="j1bt">Founder &amp; Product Lead — Ottawa Civic Chronicle</h4><div class="at" data-i18n="j1bat">Ottawa · prototype in development</div><ul>
+      <li data-i18n="j1ba">Bilingual EN/FR citizen-journalism platform built with AI: neighbourhood-level reporting, fact-checking, solutions journalism, live local alerts and reader-submitted stories.</li></ul></div></div>
+    <div class="cv-job"><div class="when" data-i18n="j2w">Nov 2025 – present</div><div><h4 data-i18n="j2t">Co-Founder, Concept &amp; Creative Direction — Parallax XP</h4><div class="at">Ottawa · <a href="https://parallaxxp.ca" target="_blank" rel="noopener">parallaxxp.ca</a></div><ul>
+      <li data-i18n="j2a">“The Expedition Within”: a 90-minute bilingual EN/FR immersive journey — six chambers, five acts (breath, scale, memory, land, migration, legacy). Opening Ottawa 2027.</li>
+      <li data-i18n="j2b">Spatial and interior design near complete; raising a seed round.</li></ul></div></div>
+    <div class="cv-job"><div class="when" data-i18n="j3w">Jan 2025 – present</div><div><h4 data-i18n="j3t">Co-Founder — Taksim Sweets &amp; Bakes</h4><div class="at">Ottawa</div><ul>
+      <li data-i18n="j3a">A café run as a community art-and-technology space: VR nights, tech-and-art roundtables for journalists and creatives.</li></ul></div></div>
+    <div class="cv-job"><div class="when" data-i18n="j4w">Nov 2023 – Jan 2026</div><div><h4 data-i18n="j4t">Creative Director &amp; Producer — Everstar XR Company</h4><div class="at" data-i18n="j4at">New York-based · remote</div><ul>
+      <li data-i18n="j4a">Directed and produced Unreal Engine animated films built as XR experiences, released in VR and 3D versions.</li>
+      <li data-i18n="j4b">Launched a three-episode AI-native animated series: storyboards, environments, video generation and original music produced end-to-end through AI pipelines, with human creative direction throughout.</li></ul></div></div>
+    <div class="cv-job"><div class="when" data-i18n="j5w">May – Oct 2023</div><div><h4 data-i18n="j5t">Marketing Team Lead — MetaCampus</h4><div class="at" data-i18n="j5at">London-based · remote</div><ul>
+      <li data-i18n="j5a">Directed the integration of generative AI tools into marketing campaigns and UX workflows.</li>
+      <li data-i18n="j5b">Brand campaigns with data-driven iteration; UI/UX reviews and user research; mentored junior staff; cross-functional delivery against KPIs.</li></ul></div></div>
+    <div class="cv-job"><div class="when" data-i18n="j6w">Mar 2018 – present</div><div><h4 data-i18n="j6t">Founder &amp; Director — Silvermoon Pictures</h4><div class="at">Ottawa</div><ul>
+      <li data-i18n="j6a">Festival-selected documentaries; commercial films for fashion, technology and finance clients; AI-based video and imagery.</li>
+      <li data-i18n="j6b">Directing a 6th-century historical animated feature in Unreal Engine with MetaHuman, Character Creator 4 and iClone.</li></ul></div></div>
+    <div class="cv-job"><div class="when" data-i18n="j7w">Nov 2018 – Apr 2019</div><div><h4 data-i18n="j7t">UX Designer (Co-op) — Bombardier</h4><div class="at" data-i18n="j7at">Toronto · remote</div><ul>
+      <li data-i18n="j7a">User research, testing, wireframes and prototypes; accessibility and usability; stakeholder design reviews.</li></ul></div></div>
+    <div class="cv-job"><div class="when" data-i18n="j8w">Jul 2015 – Jun 2016</div><div><h4 data-i18n="j8t">Creative Director — Pollux Films</h4><div class="at">Istanbul</div><ul>
+      <li data-i18n="j8a">Investigative and human-interest stories across video, audio and graphics.</li></ul></div></div>
+    <div class="cv-job"><div class="when" data-i18n="j9w">Jan 2013 – Jun 2015</div><div><h4 data-i18n="j9t">Broadcast Producer/Director — TRT World</h4><div class="at">Istanbul</div><ul>
+      <li data-i18n="j9a">Directed TV shows; production schedules and budgets; quality and editorial-standards compliance for an international news channel.</li>
+      <li data-i18n="j9b">Project Coordinator, MIPTV/MIPDOC Cannes 2013.</li></ul></div></div>
+    <div class="cv-job"><div class="when" data-i18n="j10w">Jan 2011 – Mar 2013</div><div><h4 data-i18n="j10t">Multimedia Journalist — TRT World</h4><div class="at">Istanbul</div><ul>
+      <li data-i18n="j10a">Nominated, Best Photograph, Courage in Journalism Awards (Journalists Association).</li></ul></div></div>
+    <div class="cv-job"><div class="when" data-i18n="j11w">Oct 2008 – Mar 2011</div><div><h4 data-i18n="j11t">Video Journalist — TRT 2</h4><div class="at">Istanbul</div><ul>
+      <li data-i18n="j11a">Live breaking news; sourcing and verification; shooting and editing for air.</li></ul></div></div>
+    <div class="cv-job"><div class="when"></div><div><h4 data-i18n="j12t">Creator &amp; Host — “Radio Days” (radio program)</h4><ul>
+      <li data-i18n="j12a">Visited radio stations to tell the untold, behind-the-scenes stories of radio people, and explored the medium's history and curiosities.</li></ul></div></div>
+
+    <h3 data-i18n="cvTl">Thought leadership, books &amp; film</h3>
+    <div class="cv-job"><div class="when" data-i18n="tl1w">Feb 20, 2024</div><div><h4 data-i18n="tl1t">Speaker — The Walrus Talks Cultural Futures, Ottawa</h4><ul>
+      <li data-i18n-html="tl1a">Billed as “AI Educator, Filmmaker, and Former Journalist”. Talk: <a href="https://youtu.be/ZWjm8mxYdz0" target="_blank" rel="noopener">The Journalist's New Frontier – Harnessing Tech to Tell Tomorrow's Stories</a>.</li></ul></div></div>
+    <div class="cv-job"><div class="when" data-i18n="tl2w">Book</div><div><h4>THE NEW CAVE: Reality, Responsibility &amp; the Human After AI</h4><ul>
+      <li data-i18n-html="tl2a">What must remain human as AI grows capable — judgment, expertise and accountability across classrooms, medicine, courts and work. <a href="https://a.co/d/001kY225" target="_blank" rel="noopener">Amazon</a>.</li></ul></div></div>
+    <div class="cv-job"><div class="when" data-i18n="tl3w">Book · forthcoming</div><div><h4>BEFORE THE HAND</h4></div></div>
+    <div class="cv-job"><div class="when" data-i18n="tl4w">Documentary</div><div><h4>THE TERRIBLE</h4><ul>
+      <li data-i18n="tl4a">On Ottoman wrestler Yusuf Ismail (“Koca Yusuf”), who became a legend in the West in the 1890s.</li>
+      <li data-i18n="tl4b">Main competition, Vox Popular Media Arts Festival. Narrated by Adrian Harewood. Screened in the US, Germany, Toronto and Ottawa; filmed across the UK, US, Canada and Turkey.</li>
+      <li data-i18n="tl4c">Companion book forthcoming, based on about 2.5 years of research across 10,000+ archival sources and period newspapers.</li></ul></div></div>
+
+    <h3 data-i18n="cvTk">AI &amp; creative toolkit</h3>
+    <p data-i18n="cvTkP">Claude &amp; Claude Code · OpenAI Codex &amp; ChatGPT · Google Gemini (Nano Banana image model, Veo video) · AI music · Unreal Engine, MetaHuman, Character Creator 4, iClone · Adobe Creative Suite · UX research and prototyping.</p>
+
+    <h3 data-i18n="cvEd">Education</h3>
+    <div class="cv-job"><div class="when">2018 – 2019</div><div><h4 data-i18n="e1">Humber College — Postgraduate certificate, User Experience (UX) Design</h4></div></div>
+    <div class="cv-job"><div class="when">2017 – 2018</div><div><h4 data-i18n="e2">Humber College — Communication &amp; Media Studies</h4></div></div>
+    <div class="cv-job"><div class="when">2014 – 2017</div><div><h4 data-i18n="e3">Istanbul Arel University — Master's, Fine/Studio Arts</h4></div></div>
+    <div class="cv-job"><div class="when">2002 – 2008</div><div><h4 data-i18n="e4">Anadolu University — Journalism, Faculty of Communication Sciences</h4></div></div>
+
+    <h3 data-i18n="cvLg">Languages</h3>
+    <p data-i18n="cvLgP">Turkish (native) · English (professional)</p>
+  </div>
+</details>
+
+<script type="module">
+/* ============ UI, i18n, scroll — works with or without WebGL ============ */
+const root = document.documentElement;
+root.classList.add('js');
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const FR = {
+  skipMain:"Passer au CV", skipCv:"Passer au CV", loading:"On allume le feu", soundOff:"Son coupé", soundOn:"Son activé", soundSr:"Activer ou couper le son d'ambiance",
+  stageAria:"Une caverne en 3D éclairée par un feu. Le défilement déplace une seule caméra au fond de la caverne, puis vers la lumière du jour.",
+  chaptersAria:"Chapitres",
+  r1:'<span class="mono">Le feu</span>', r2:'<span class="mono">Les années signal</span>', r3:'<span class="mono">Livres</span>', r4:'<span class="mono">The Terrible</span>', r5:'<span class="mono">Radio Days</span>', r6:'<span class="mono">Chambres</span>', r7:'<span class="mono">Autour du feu</span>', r8:'<span class="mono">Plein jour</span>', r9:'<span class="mono">Contact</span>',
+  heroTag:"D'abord les histoires.<br><em>Ensuite, les machines.</em>",
+  heroPos:"Leader en innovation et en IA appliquée pour les médias. Dix-sept ans à porter des histoires vers le public, d'un média à l'autre — télédiffusion, documentaire, XR, et maintenant l'IA — toujours avec un humain qui répond du résultat.",
+  heroRole:"Portfolio pour le poste Director, AI Innovation Enablement · CBC/Radio-Canada · Ottawa (Canada)",
+  cue:"Faites défiler — la lumière va bouger", heroK2:"La nouvelle caverne",
+  heroBig:"Chaque média projette de la lumière sur une paroi. <em>L'IA est le projecteur le plus puissant à ce jour.</em>",
+  heroJob:"Le rôle de l'habilitation en IA dans un diffuseur public : montrer le feu aux gens — pas seulement les ombres.",
+  sigK:"02 — Les années signal · Istanbul", sigH:"Avant les machines, <em>le signal.</em>",
+  sigP:"Nouvelles de dernière heure en direct. Recherche et vérification des sources. Des reportages tournés et montés pour la diffusion, puis la réalisation pour une chaîne d'information internationale — les réflexes sur lesquels repose un diffuseur public.",
+  sig1t:"Journaliste vidéo", sig1p:"Nouvelles de dernière heure en direct; recherche et vérification des sources; tournage et montage pour la diffusion.",
+  sig2t:"Journaliste multimédia", sig2p:"En nomination, <b>meilleure photographie</b> — Courage in Journalism Awards (Journalists Association).",
+  sig3t:"Producteur-réalisateur télé", sig3p:"Réalisation d'émissions pour une chaîne d'information internationale — calendriers de production, budgets, qualité et respect des normes éditoriales. Coordonnateur de projet, MIPTV/MIPDOC Cannes 2013.",
+  sig4t:"Directeur de création", sig4p:"Enquêtes et histoires humaines, en vidéo, en audio et en graphisme.",
+  bkK:"03 — Le livre", bkP:"Ce qui doit rester humain à mesure que l'IA gagne en capacité : le jugement, l'expertise et la responsabilité — en classe, en médecine, devant les tribunaux et au travail. La caverne de Platon sert de métaphore. Ce site la parcourt.",
+  bkLink:'Le lire sur Amazon <span class="ar" aria-hidden="true">→</span>',
+  bkK2:"Sur la corniche", bkH2:"Trois livres, <em>une question :</em> qu'est-ce qui reste humain?",
+  pub:"Publié", forth:"À paraître", forth2:"À paraître", b1s:"Reality, Responsibility & the Human After AI.", b2s:"Livre à paraître.",
+  b3s:"Livre compagnon du documentaire — environ deux ans et demi de recherche dans plus de 10 000 sources d'archives et journaux d'époque.",
+  bhK:"À paraître", bhP:"Parmi les toutes premières traces laissées sur les parois des cavernes : des mains, contournées de pigment. Un livre à paraître.",
+  trK:"04 — Documentaire", trA:"Plus de <em>10 000</em> sources d'archives. Des journaux d'époque. Environ deux ans et demi de recherche.",
+  trB:"Du papier naît un titre — et un trajet sur trois continents.",
+  trP:"Un documentaire sur le lutteur ottoman <b>Yusuf Ismail — « Koca Yusuf »</b> — devenu une légende en Occident dans les années 1890.",
+  ch1:"<b>Compétition principale</b> · Vox Popular Media Arts Festival", ch2:"<b>Narration</b> Adrian Harewood", ch3:"<b>Projeté</b> · États-Unis · Allemagne · Toronto · Ottawa", ch4:"<b>Tourné</b> · Royaume-Uni · États-Unis · Canada · Turquie", ch5:"<b>Livre compagnon</b> · à paraître",
+  rdK:"05 — Créateur et animateur", rdP:"Il est allé dans les stations de radio raconter les histoires méconnues, en coulisses, des gens de la radio — de l'époque où les voix de la radio étaient plus célèbres que les vedettes de la télévision — et explorer l'histoire et les curiosités du média.",
+  rdHint:"Touchez l'eau. Le son reste coupé tant que vous ne l'activez pas.",
+  chK:"06 — Chambres latérales", chH:"Chaque projet, <em>une lumière différente.</em>", chP:"Là où le récit est passé aux nouveaux médias — XR, apprentissage, IA appliquée, espace immersif, cinéma.",
+  v1w:"New York · à distance · 2023–2026", v1r:"Directeur de création et producteur",
+  v1p:"Réalisation et production de films d'animation Unreal Engine conçus comme expériences XR, offerts en versions RV et 3D. Lancement d'une série d'animation de trois épisodes née de l'IA — scénarimages, décors, génération vidéo et musique originale produits de bout en bout par des chaînes de production IA, sous direction créative humaine du début à la fin.",
+  v2w:"Londres · à distance · 2023", v2r:"Chef d'équipe, marketing",
+  v2p:"Direction de l'intégration d'outils d'IA générative dans les campagnes marketing et les flux de travail UX; itération guidée par les données; revues UI/UX et recherche utilisateur; mentorat d'employés juniors.",
+  v3w:"Ottawa · depuis 2026", v3r:"Fondateur · Laboratoire d'innovation, de technologie et de science en IA appliquée",
+  v3p:"Développement des compétences en IA chez les jeunes, adoption de l'IA par les PME, réalisation appliquée. Un modèle par étapes — diagnostic Workflow X-Ray, puis prototype pilote, puis construction et transfert — chacune avec une mesure de référence et une passation.",
+  v4w:"Ottawa · depuis 2025", v4r:"Cofondateur · Concept et direction de création",
+  v4p:"<i>The Expedition Within</i> : un parcours immersif bilingue EN/FR de 90 minutes — six chambres, cinq actes : breath, scale, memory, land, migration, legacy. Ouverture à Ottawa en 2027. Ce site reprend l'idée : un seul parcours, chambre par chambre.",
+  j1bw:"mai 2026 – aujourd’hui", j1bt:"Fondateur et responsable produit — Ottawa Civic Chronicle", j1bat:"Ottawa · prototype en développement", j1ba:"Plateforme bilingue de journalisme citoyen construite avec l’IA : reportages de quartier, vérification des faits, journalisme de solutions, alertes locales en direct et récits soumis par les lecteurs.",
+  v3bK:"Aussi en chantier · 2026 · prototype", v3bP:"Une plateforme bilingue de journalisme citoyen pour Ottawa, construite avec l’IA : reportages de quartier, vérification des faits et journalisme de solutions, alertes locales en direct et récits soumis par les lecteurs. Les normes d’une salle de nouvelles, appliquées à un produit civique construit avec l’IA.",
+  v5w:"Ottawa · depuis 2018", v5r:"Fondateur et réalisateur",
+  v5p:"Documentaires sélectionnés en festival; films commerciaux pour des clients en mode, en technologie et en finance; vidéo et images générées par IA. Réalise un long métrage d'animation historique situé au VIe siècle dans Unreal Engine, avec MetaHuman, Character Creator 4 et iClone.",
+  wtK:"07 — Ottawa · 20 février 2024", wtH:"The Walrus Talks <em>Cultural Futures</em>",
+  wtP:"Présenté comme « AI Educator, Filmmaker, and Former Journalist », lors d'une soirée sur l'effet de l'IA sur les arts et la culture au Canada.",
+  wtLink:'Voir : The Journalist\'s New Frontier – Harnessing Tech to Tell Tomorrow\'s Stories <span class="ar" aria-hidden="true">→</span>',
+  crK:"Le studio · une équipe autour du feu", crH:"Chaque outil <em>a son rôle.</em> Un humain tient la lumière.",
+  cr1:"Partenaire de réflexion et bâtisseur — ébauches, raisonnement, code.", cr2:"Une deuxième paire de mains — code, révision, recherche.", cr3:"Images et vidéo, du scénarimage au plan.", cr4:"Des mondes et des humains numériques.", cr5t:"Musique IA · Adobe Creative Suite", cr5:"Musique originale; finition.", cr6t:"Direction humaine", cr6:"Jugement, normes éditoriales, approbation. Répond du résultat.",
+  mtK:"La méthode", mtLines:"<span>Choisir un flux de travail.</span><span>Noter le chiffre d'aujourd'hui.</span><span>Changer une seule chose.</span><span>Mesurer à nouveau.</span>",
+  mtP:"Puis rédiger le guide pratique, pour que l'équipe se l'approprie.", mtSite:"Ce site a été construit de la même façon — avec des agents de codage IA, sous sa direction.",
+  lvK:"08 — Sortir de la caverne", lvH:"Dehors, le travail, ce n'est pas les ombres. <em>C'est le feu, et qui le tient.</em>",
+  dyK:"Une proposition · en plein jour", dyH:"Comment je mènerais l'habilitation en IA à <em>CBC/Radio-Canada</em>",
+  dyP:"Un pipeline rigoureux, un registre partagé, et des gens qui voient ce qui avance — bâti avec les leaders du contenu et des opérations, pas pour eux.",
+  dyNote:"Il s'agit de ma proposition de candidat — pas d'une politique de CBC/Radio-Canada. Elle s'aligne sur les principes publics déjà en place : responsabilité humaine, transparence et divulgation, confiance.",
+  pK:"01 · Pipeline", pH:"De l'idée au déploiement — avec un point de contrôle humain à chaque étape",
+  p1:"Accueil", p1d:"Une seule porte d'entrée pour toutes les équipes, en français et en anglais.", p2:"Évaluation", p2d:"Valeur, risque, effort, sensibilité éditoriale.", p3:"Expérimentation", p3d:"Une mesure de référence et un critère de sortie — avant de construire quoi que ce soit.", p4:"Incubation du PMV", p4d:"Petit et réel, porté par l'équipe qui l'utilisera.", p5:"Déploiement", p5d:"Formation avec l'équipe d'apprentissage, guide pratique, soutien.", p6:"Mesurer et partager", p6d:"Les résultats alimentent le registre, le tableau de bord et les études de cas.",
+  lgS:"Étape", lgG:"Point de contrôle — approbation humaine éditoriale, juridique ou sécurité selon le cas",
+  plK:"02 · Les 90 premiers jours — ma proposition", plH:"Écouter, puis bâtir le cadre, puis montrer du concret",
+  days:"jours", days2:"jours", days3:"jours",
+  d30h:"Écouter et cartographier", d30a:"Un registre partagé des outils et projets pilotes d'IA déjà utilisés dans les services français et anglais.", d30b:"Rencontrer les leaders du contenu, des opérations, du juridique, de la sécurité, de Personnes et culture et de l'apprentissage.",
+  d60h:"Un seul cadre", d60a:"Un cadre unique d'accueil et d'évaluation : valeur, risque, effort, sensibilité éditoriale.", d60b:"Une mesure de référence et un critère de sortie pour chaque projet pilote.", d60c:"Un guide d'IA responsable léger, aligné sur les principes existants de CBC/Radio-Canada — responsabilité humaine, divulgation.",
+  d90h:"Du concret, visible", d90a:"Deux ou trois projets pilotes visibles, choisis avec les leaders du contenu et des opérations — pas pour eux.", d90b:"Des séances de littératie en IA conçues avec l'équipe d'apprentissage.", d90c:"Un tableau de bord du pipeline — accueil → expérimentation → PMV → déploiement — pour que la direction voie ce qui avance.",
+  prK:"03 · Principes", prH:"La confiance est l'actif le plus précieux",
+  pr1:"Responsabilité humaine", pr1d:"Aucun journalisme sans intervention humaine directe. Une personne nommée répond de chaque résultat assisté par l'IA.",
+  pr2:"Divulgation", pr2d:"Le public sait quand et comment l'IA est utilisée. La transparence fait partie du produit.",
+  pr3:"Bilingue d'emblée", pr3d:"Outils, formations et guides conçus pour les services français et anglais dès le premier jour.",
+  pr4:"Confiance", pr4d:"Chaque projet pilote est jugé à cette aune — avec le juridique, la sécurité et la gouvernance à la table, et la collaboration plutôt que la concurrence.",
+  rgK:"04 · Registre de l'IA", rgH:"Un registre commun des outils, projets pilotes et initiatives", rgBadge:"Modèle d'exemple — lignes fictives, pas de vraies données", rgSc:"Faire défiler →", rgCap:"Modèle de registre de l'IA avec des lignes d'exemple",
+  th1:"Outil / initiative", th2:"Responsable", th3:"Étape", th4:"Niveau de risque", th5:"Référence → mesure", th6:"Contrôle humain",
+  r1a:"Aide à la transcription pour l'audio d'archives", r1b:"Équipe des archives (exemple)", r1c:"Expérimentation", r1e:"Minutes pour obtenir une transcription consultable", r1f:"Vérification éditoriale ponctuelle",
+  r2a:"Ébauches de résumés bilingues pour les notes internes", r2b:"Opérations (exemple)", r2c:"Évaluation", r2e:"Délai de première ébauche; taux de correction", r2f:"Approbation par un rédacteur nommé",
+  r3a:"Étiquetage des métadonnées de la vidéothèque", r3b:"Numérique (exemple)", r3c:"Incubation du PMV", r3e:"Taux de réussite des recherches", r3f:"Revue d'échantillon avant déploiement",
+  r4a:"Projet pilote d'assistant destiné au public", r4b:"Produit (exemple)", r4c:"Accueil", r4e:"Exactitude sur un jeu de test; plaintes du public", r4f:"Éditorial + juridique + sécurité",
+  low:"Faible", low2:"Faible", med:"Moyen", high:"Élevé",
+  ftK:"05 · Ce que j'apporte", ftH:"Un pont entre la salle de nouvelles et la salle des machines",
+  ft1:"<b>L'ADN de la télédiffusion.</b> TRT 2 et TRT World — information en direct, vérification, normes éditoriales.",
+  ft2:"<b>Éditorial ↔ ingénierie.</b> Dirige concrètement des chaînes de production IA, du scénarimage à l'œuvre livrée.",
+  ft3:"<b>L'IA responsable, par écrit.</b> THE NEW CAVE — sur le jugement, l'expertise et la responsabilité après l'IA.",
+  ft4:"<b>Littératie en IA.</b> Développement des compétences chez les jeunes et adoption par les PME chez GEN:A Labs; tables rondes communautaires art et technologie.",
+  ft5:"<b>Leadership d'opinion.</b> The Walrus Talks; auteur; documentariste.",
+  ft6:"<b>Des projets pilotes mesurés.</b> Mesure de référence et passation à chaque étape — la même rigueur que ce poste demande.",
+  ctK:"09 — À l'entrée de la caverne", ctH:"Sortons <em>à la lumière.</em>", ctP:"Cem (Jack) Guler · Ottawa (Ontario) Canada", ctEmail:"Courriel",
+  ctPdf:'Télécharger le CV (PDF) <span aria-hidden="true">↓</span>', ctCv:'Lire le CV complet <span aria-hidden="true">↓</span>',
+  ftA:"Construit avec des agents de codage IA, sous direction humaine. Chaque image est générée par le code — aucune photo d'archives, aucun logo.",
+  cvSum:"Curriculum vitæ — texte intégral", cvOpen:"Ouvrir", cvClose:"Fermer",
+  cvHead:"Leader en innovation et IA appliquée pour les médias · radiodiffusion d'intérêt public · littératie en IA et adoption responsable",
+  cvSummary:"Dix-sept ans à porter des histoires vers le public, d'un média à l'autre — télédiffusion, documentaire, XR, et maintenant l'IA — toujours avec un humain qui répond du résultat.",
+  cvExp:"Expérience",
+  j1w:"janv. 2026 – aujourd'hui", j1t:"Fondateur — GEN:A Labs", j1a:"Laboratoire d'innovation, de technologie et de science en IA appliquée : développement des compétences en IA chez les jeunes, adoption de l'IA par les PME, réalisation appliquée.", j1b:"Modèle opérationnel par étapes : diagnostic Workflow X-Ray → prototype pilote → construction et transfert, chacune avec une mesure de référence et une passation.", j1c:"Flux de travail IA standardisés — réceptionniste IA, document vers dossier, suivi automatisé — validés à l'interne avant tout déploiement chez un client.",
+  j2w:"nov. 2025 – aujourd'hui", j2t:"Cofondateur, concept et direction de création — Parallax XP", j2a:"« The Expedition Within » : un parcours immersif bilingue EN/FR de 90 minutes — six chambres, cinq actes (breath, scale, memory, land, migration, legacy). Ouverture à Ottawa en 2027.", j2b:"Conception spatiale et intérieure presque terminée; ronde de financement d'amorçage en cours.",
+  j3w:"janv. 2025 – aujourd'hui", j3t:"Cofondateur — Taksim Sweets & Bakes", j3a:"Un café exploité comme lieu communautaire d'art et de technologie : soirées RV, tables rondes art et technologie pour journalistes et créateurs.",
+  j4w:"nov. 2023 – janv. 2026", j4t:"Directeur de création et producteur — Everstar XR Company", j4at:"Basée à New York · à distance", j4a:"Réalisation et production de films d'animation Unreal Engine conçus comme expériences XR, offerts en versions RV et 3D.", j4b:"Lancement d'une série d'animation de trois épisodes née de l'IA : scénarimages, décors, génération vidéo et musique originale produits de bout en bout par des chaînes de production IA, sous direction créative humaine du début à la fin.",
+  j5w:"mai – oct. 2023", j5t:"Chef d'équipe, marketing — MetaCampus", j5at:"Basée à Londres · à distance", j5a:"Direction de l'intégration d'outils d'IA générative dans les campagnes marketing et les flux de travail UX.", j5b:"Campagnes de marque avec itération guidée par les données; revues UI/UX et recherche utilisateur; mentorat d'employés juniors; livraison interfonctionnelle selon des indicateurs de performance.",
+  j6w:"mars 2018 – aujourd'hui", j6t:"Fondateur et réalisateur — Silvermoon Pictures", j6a:"Documentaires sélectionnés en festival; films commerciaux pour des clients en mode, en technologie et en finance; vidéo et images générées par IA.", j6b:"Réalise un long métrage d'animation historique situé au VIe siècle dans Unreal Engine, avec MetaHuman, Character Creator 4 et iClone.",
+  j7w:"nov. 2018 – avr. 2019", j7t:"Concepteur UX (stage coop) — Bombardier", j7at:"Toronto · à distance", j7a:"Recherche et tests utilisateurs, maquettes et prototypes; accessibilité et convivialité; revues de conception avec les parties prenantes.",
+  j8w:"juill. 2015 – juin 2016", j8t:"Directeur de création — Pollux Films", j8a:"Enquêtes et histoires humaines, en vidéo, en audio et en graphisme.",
+  j9w:"janv. 2013 – juin 2015", j9t:"Producteur-réalisateur télé — TRT World", j9a:"Réalisation d'émissions; calendriers de production et budgets; qualité et respect des normes éditoriales pour une chaîne d'information internationale.", j9b:"Coordonnateur de projet, MIPTV/MIPDOC Cannes 2013.",
+  j10w:"janv. 2011 – mars 2013", j10t:"Journaliste multimédia — TRT World", j10a:"En nomination, meilleure photographie, Courage in Journalism Awards (Journalists Association).",
+  j11w:"oct. 2008 – mars 2011", j11t:"Journaliste vidéo — TRT 2", j11a:"Nouvelles de dernière heure en direct; recherche et vérification des sources; tournage et montage pour la diffusion.",
+  j12t:"Créateur et animateur — « Radio Days » (émission de radio)", j12a:"Visites de stations de radio pour raconter les histoires méconnues, en coulisses, des gens de la radio, et explorer l'histoire et les curiosités du média.",
+  cvTl:"Leadership d'opinion, livres et film", tl1w:"20 févr. 2024", tl1t:"Conférencier — The Walrus Talks Cultural Futures, Ottawa",
+  tl1a:'Présenté comme « AI Educator, Filmmaker, and Former Journalist ». Conférence : <a href="https://youtu.be/ZWjm8mxYdz0" target="_blank" rel="noopener">The Journalist\'s New Frontier – Harnessing Tech to Tell Tomorrow\'s Stories</a>.',
+  tl2w:"Livre", tl2a:'Ce qui doit rester humain à mesure que l\'IA gagne en capacité — le jugement, l\'expertise et la responsabilité, en classe, en médecine, devant les tribunaux et au travail. <a href="https://a.co/d/001kY225" target="_blank" rel="noopener">Amazon</a>.',
+  tl3w:"Livre · à paraître", tl4w:"Documentaire", tl4a:"Sur le lutteur ottoman Yusuf Ismail (« Koca Yusuf »), devenu une légende en Occident dans les années 1890.", tl4b:"Compétition principale, Vox Popular Media Arts Festival. Narration d'Adrian Harewood. Projeté aux États-Unis, en Allemagne, à Toronto et à Ottawa; tourné au Royaume-Uni, aux États-Unis, au Canada et en Turquie.", tl4c:"Livre compagnon à paraître, fondé sur environ 2,5 ans de recherche dans plus de 10 000 sources d'archives et journaux d'époque.",
+  cvTk:"Boîte à outils IA et création", cvTkP:"Claude et Claude Code · OpenAI Codex et ChatGPT · Google Gemini (modèle d'images Nano Banana, vidéo Veo) · musique IA · Unreal Engine, MetaHuman, Character Creator 4, iClone · Adobe Creative Suite · recherche UX et prototypage.",
+  cvEd:"Formation", e1:"Collège Humber — Certificat postdiplôme, conception de l'expérience utilisateur (UX)", e2:"Collège Humber — Communication et études des médias", e3:"Université Arel d'Istanbul — Maîtrise, beaux-arts / arts visuels", e4:"Université Anadolu — Journalisme, Faculté des sciences de la communication",
+  cvLg:"Langues", cvLgP:"Turc (langue maternelle) · anglais (niveau professionnel)"
+};
+const CHAPTERS = {
+  en:{c1:"01 — The fire",c2:"02 — Signal years",c3:"03 — Books",c4:"04 — The Terrible",c5:"05 — Radio Days",c6:"06 — Chambers",c7:"07 — Around the fire",c8:"08 — Leaving the cave",c9:"Daylight — the proposal",c10:"09 — Contact"},
+  fr:{c1:"01 — Le feu",c2:"02 — Les années signal",c3:"03 — Livres",c4:"04 — The Terrible",c5:"05 — Radio Days",c6:"06 — Chambres",c7:"07 — Autour du feu",c8:"08 — Sortir de la caverne",c9:"Plein jour — la proposition",c10:"09 — Contact"}
+};
+const EN = {};
+document.querySelectorAll('[data-i18n]').forEach(el => EN[el.dataset.i18n] = el.textContent);
+document.querySelectorAll('[data-i18n-html]').forEach(el => EN[el.dataset.i18nHtml] = el.innerHTML);
+document.querySelectorAll('[data-i18n-aria]').forEach(el => EN['aria:'+el.dataset.i18nAria] = el.getAttribute('aria-label'));
+let lang = 'en';
+const state = { lang, soundOn:false };
+function setLang(l){
+  lang = state.lang = l;
+  root.lang = l === 'fr' ? 'fr-CA' : 'en';
+  const D = l === 'fr' ? FR : EN;
+  document.querySelectorAll('[data-i18n]').forEach(el => { const v = D[el.dataset.i18n]; if (v != null) el.textContent = v; });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { const v = D[el.dataset.i18nHtml]; if (v != null) el.innerHTML = v; });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => { const k = el.dataset.i18nAria; const v = l === 'fr' ? FR[k] : EN['aria:'+k]; if (v) el.setAttribute('aria-label', v); });
+  document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === l)));
+  updateSoundLabel(); updateChapter(true);
+}
+document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
+
+/* CV open links */
+const cv = document.getElementById('cv');
+document.querySelectorAll('[data-cv-open]').forEach(a => a.addEventListener('click', e => {
+  e.preventDefault(); cv.open = true;
+  requestAnimationFrame(() => { cv.scrollIntoView({behavior: reduced ? 'auto' : 'smooth', block:'start'}); cv.querySelector('summary').focus({preventScroll:true}); });
+}));
+
+/* Sound */
+const sndBtn = document.getElementById('sound');
+function updateSoundLabel(){
+  const l = sndBtn.querySelector('.lbl');
+  l.textContent = state.soundOn ? (lang==='fr'?FR.soundOn:'Sound on') : (lang==='fr'?FR.soundOff:'Sound off');
+  sndBtn.setAttribute('aria-pressed', String(state.soundOn));
+}
+sndBtn.addEventListener('click', () => { state.soundOn = !state.soundOn; updateSoundLabel(); window.__world && window.__world.setSound(state.soundOn); });
+
+/* reveal */
+const rvs = document.querySelectorAll('.rv');
+if ('IntersectionObserver' in window && !reduced) {
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); else if (e.boundingClientRect.top > 0) e.target.classList.remove('in'); }), {rootMargin:'0px 0px -12% 0px', threshold:0.05});
+  rvs.forEach(el => io.observe(el));
+} else rvs.forEach(el => el.classList.add('in'));
+
+/* scroll → scene parameter t */
+const stations = [...document.querySelectorAll('[data-scene]')];
+const chapterEl = document.getElementById('chapter');
+const railLinks = [...document.querySelectorAll('#rail a')];
+let lastChapter = '';
+function computeT(){
+  const y = scrollY, vh = innerHeight;
+  let t = 0, chap = stations[0].dataset.chapter;
+  for (let i = 0; i < stations.length; i++){
+    const el = stations[i], top = el.offsetTop, h = el.offsetHeight;
+    if (y + vh*0.5 >= top) chap = el.dataset.chapter;
+    if (y >= top) t = (+el.dataset.scene) + Math.min(1, (y - top) / Math.max(1, h));
+  }
+  // the contact scene starts while the daylight section scrolls away
+  const contact = document.getElementById('contact');
+  const cTop = contact.offsetTop;
+  if (y + vh > cTop) t = Math.max(t, 9 + Math.min(1, (y + vh - cTop) / (contact.offsetHeight + vh)));
+  return { t, chap };
+}
+function updateChapter(force){
+  const { chap } = computeT();
+  if (chap !== lastChapter || force){
+    lastChapter = chap;
+    chapterEl.textContent = CHAPTERS[lang][chap] || '';
+    const idx = {c1:0,c2:1,c3:2,c4:3,c5:4,c6:5,c7:6,c8:6,c9:7,c10:8}[chap];
+    railLinks.forEach((a,i) => a.setAttribute('aria-current', String(i === idx)));
+  }
+}
+function dayMode(){
+  const en = document.getElementById('enable');
+  const r = en.getBoundingClientRect();
+  const cvr = cv.getBoundingClientRect();
+  const isDay = (r.top < 60 && r.bottom > 60) || (cvr.top < 60);
+  root.classList.toggle('day', isDay);
+  // canvas visibility: hidden while the daylight sheet or CV covers the screen
+  const covered = (r.top <= 0 && r.bottom >= innerHeight) || (cvr.top <= 0);
+  return { covered, dayCover: Math.max(0, Math.min(1, 1 - r.top / innerHeight)) };
+}
+window.__ui = { computeT, dayMode, state, reduced };
+addEventListener('scroll', () => { updateChapter(); dayMode(); }, {passive:true});
+addEventListener('resize', () => updateChapter(true));
+updateChapter(true); dayMode();
+
+/* 3D world (progressive enhancement) */
+const fallback = () => { root.classList.add('nogl','ready'); };
+let ok = false;
+try { const c = document.createElement('canvas'); ok = !!(c.getContext('webgl2') || c.getContext('webgl')); } catch(e) {}
+if (!ok) fallback();
+else {
+  root.classList.add('gl');
+  const giveUp = setTimeout(() => { if (!root.classList.contains('ready')) { root.classList.remove('gl'); fallback(); } }, 20000);
+  import('./world.js').then(m => m.start(document.getElementById('stage'), window.__ui))
+    .then(w => { clearTimeout(giveUp); window.__world = w; root.classList.add('ready'); })
+    .catch(err => { console.warn('3D disabled:', err); clearTimeout(giveUp); root.classList.remove('gl'); rvs.forEach(el => el.classList.add('in')); fallback(); });
+}
+</script>
+</body>
+</html>
