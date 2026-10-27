@@ -1,0 +1,753 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Sophie for Myers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one dark "call desk" screen. The live console with its four call buttons is the page; details open on demand below. */
+:root{
+  --desk:#0b1524; --desk-2:#122035; --desk-3:#182a44; --line:#22354f; --line-2:#2e4566;
+  --ink:#eef3f8; --ink-2:#a3b5ca; --ink-3:#6f84a0;
+  --ice:#a8d5ff; --ice-2:#e4f2ff; --amber:#f3aa3c; --amber-ink:#1c1304; --stop:#e2574c; --ok:#5fd39a;
+  --display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --body:"Instrument Sans","Helvetica Neue","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+[hidden]{display:none!important}
+body{background:var(--desk);color:var(--ink);font:16px/1.55 var(--body);-webkit-font-smoothing:antialiased;min-height:100%}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(60% 50% at 80% 10%,rgba(168,213,255,.10),transparent 70%),radial-gradient(40% 40% at 10% 90%,rgba(243,170,60,.06),transparent 70%)}
+a{color:var(--ice)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--amber);outline-offset:3px;border-radius:8px}
+.wrap{max-width:1140px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));position:relative}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+p{margin:0}
+.label{font:500 12px/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+
+/* top bar */
+.bar .wrap{display:flex;align-items:center;gap:12px;min-height:56px;padding-block:8px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:17px}
+.brand i{width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--ice-2),var(--ice));display:block}
+.tag{font:500 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--amber);border:1px solid color-mix(in srgb,var(--amber) 45%,transparent);border-radius:999px;padding:5px 9px}
+@media (max-width:480px){.tag{order:3}.bar .wrap{gap:8px 12px;padding-block:10px}}
+.langs{margin-left:auto;display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:2px}
+.langs button{border:0;background:transparent;color:var(--ink-2);font:500 12px/1 var(--mono);letter-spacing:.06em;padding:0 14px;min-height:40px;min-width:48px;border-radius:999px}
+.langs button[aria-pressed="true"]{background:var(--ink);color:var(--desk)}
+
+/* main grid */
+.main .wrap{display:grid;grid-template-columns:1fr;gap:28px;padding-block:36px 40px}
+@media (min-width:960px){.main .wrap{grid-template-columns:.8fr 1.2fr;gap:48px;align-items:start;padding-block:56px 56px}}
+.intro{display:grid;gap:18px;min-width:0}
+@media (min-width:960px){.intro{position:sticky;top:32px}}
+.intro h1{font-size:clamp(32px,4.6vw,52px);line-height:1.04;font-weight:700}
+.intro h1 em{font-style:normal;color:var(--ice)}
+.intro .lead{color:var(--ink-2);font-size:17px;max-width:42ch}
+.points{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:10px}
+.points li{display:grid;grid-template-columns:20px 1fr;gap:10px;color:var(--ink-2);font-size:15px}
+.points svg{width:20px;height:20px;color:var(--ok);margin-top:1px}
+.phone{color:var(--ink-2);font-size:15px}
+.phone b{font:500 15px var(--mono);color:var(--ink);user-select:all}
+
+/* console */
+.console{background:var(--desk-2);border:1px solid var(--line);border-radius:24px;padding:20px;display:grid;gap:18px;min-width:0;box-shadow:0 40px 100px -50px rgba(0,0,0,.8)}
+.ctop{display:flex;align-items:center;gap:10px;font:500 12px/1 var(--mono);color:var(--ink-3);letter-spacing:.05em}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ink-3);flex:none}
+.console[data-state="listening"] .dot,.console[data-state="speaking"] .dot{background:var(--ok);box-shadow:0 0 0 4px rgba(95,211,154,.15)}
+.console[data-state="connecting"] .dot{background:var(--amber)}
+.ctop .t{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--ink);font-size:13px}
+.stage{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+.orb{width:104px;height:104px;max-width:100%;display:block}
+.who h2{font-size:24px}
+.who .state{color:var(--ice);font-weight:600;min-height:1.5em}
+.who .hint{color:var(--ink-3);font-size:14px}
+.callrow{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 20px;border-radius:999px;border:1px solid transparent;font-weight:600;font-size:16px;flex:1 1 180px}
+.btn svg{width:18px;height:18px;flex:none}
+.btn.go{background:var(--amber);color:var(--amber-ink)}
+.btn.go:hover{filter:brightness(1.06)}
+.btn.alt{background:transparent;color:var(--ink);border-color:var(--line-2)}
+.btn.alt:hover{border-color:var(--ink-2)}
+.btn.stop{background:var(--stop);color:#fff}
+.btn:disabled{opacity:.5;cursor:default}
+
+/* scenario buttons */
+.pick{display:grid;gap:10px}
+.scen{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:640px){.scen{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.sc{background:var(--desk-3);border:1px solid var(--line);border-radius:16px;padding:14px 12px;display:grid;gap:10px;justify-items:start;text-align:left;min-height:104px;transition:border-color .15s,background .15s,transform .15s}
+.sc:hover{border-color:var(--line-2);transform:translateY(-1px)}
+.sc[aria-pressed="true"]{border-color:var(--ice);background:color-mix(in srgb,var(--ice) 10%,var(--desk-3))}
+.sc .ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--ice) 14%,transparent);color:var(--ice)}
+.sc .ic svg{width:20px;height:20px}
+.sc b{font-weight:600;font-size:15px;line-height:1.25}
+.sc:disabled{opacity:1;cursor:pointer}
+.cue{border:1px solid color-mix(in srgb,var(--ice) 35%,transparent);background:color-mix(in srgb,var(--ice) 7%,transparent);border-radius:16px;padding:14px 16px;display:grid;gap:8px}
+.cue .say{font-family:var(--display);font-size:20px;line-height:1.3;font-weight:500}
+.cue .watch{color:var(--ink-2);font-size:14px}
+.cue .watch b{color:var(--ink);font-weight:600}
+
+.log{background:rgba(0,0,0,.18);border:1px solid var(--line);border-radius:16px;padding:12px;height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;scroll-behavior:smooth}
+.log .empty{margin:auto;color:var(--ink-3);font-size:14px;text-align:center;max-width:32ch}
+.msg{max-width:88%;padding:8px 12px;border-radius:14px;font-size:15px;line-height:1.4}
+.msg.agent{background:color-mix(in srgb,var(--ice) 13%,transparent);border-bottom-left-radius:4px;align-self:flex-start}
+.msg.user{background:var(--ink);color:var(--desk);border-bottom-right-radius:4px;align-self:flex-end}
+.msg small{display:block;font:500 10px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;opacity:.7;margin-bottom:2px}
+.fallback{background:color-mix(in srgb,var(--amber) 12%,transparent);border:1px solid color-mix(in srgb,var(--amber) 40%,transparent);border-radius:12px;padding:10px 12px;font-size:14px}
+.fallback a{color:var(--amber);font-weight:600}
+
+/* details on demand */
+.more .wrap{padding-block:8px 24px;display:grid;gap:10px}
+.more .label{margin-bottom:6px}
+details{background:var(--desk-2);border:1px solid var(--line);border-radius:18px}
+summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:14px;padding:18px 20px}
+summary::-webkit-details-marker{display:none}
+summary h3{font-size:18px;flex:1}
+summary span{color:var(--ink-3);font-size:14px;display:none}
+@media (min-width:720px){summary span{display:block}}
+summary::after{content:"";width:10px;height:10px;border-right:2px solid var(--ink-2);border-bottom:2px solid var(--ink-2);transform:rotate(45deg);transition:transform .2s;margin-top:-4px}
+details[open] summary::after{transform:rotate(-135deg);margin-top:4px}
+.dbody{padding:0 20px 20px;display:grid;gap:14px;color:var(--ink-2)}
+.cols{display:grid;grid-template-columns:1fr;gap:14px}
+@media (min-width:760px){.cols{grid-template-columns:repeat(3,1fr)}}
+.cols > div{border-top:2px solid var(--line-2);padding-top:12px;display:grid;gap:6px;align-content:start}
+.cols h4{margin:0;color:var(--ink);font-size:16px;font-family:var(--display);font-weight:500}
+.cols .label{margin:0}
+.flow{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr;gap:12px;counter-reset:f}
+@media (min-width:760px){.flow{grid-template-columns:repeat(4,1fr)}}
+.flow li{counter-increment:f;display:grid;gap:6px;align-content:start}
+.flow li::before{content:counter(f);font:500 12px/1 var(--mono);width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--desk)}
+.flow h4{margin:0;color:var(--ink);font-size:16px;font-family:var(--display);font-weight:500}
+.checks{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr;gap:8px}
+@media (min-width:760px){.checks{grid-template-columns:1fr 1fr}}
+.checks li{display:grid;grid-template-columns:18px 1fr;gap:10px}
+.checks svg{width:18px;height:18px;color:var(--ok);margin-top:3px}
+
+footer .wrap{padding-block:20px 36px;color:var(--ink-3);font-size:13px;display:grid;gap:8px;border-top:1px solid var(--line)}
+footer .contact{color:var(--ink);font-size:15px}
+
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+/* ---- proposal sections below the live console ---- */
+.pitch{border-top:1px solid var(--line);padding-block:56px}
+.pitch .label{color:var(--amber);margin-bottom:12px}
+.pitch h2{font-size:clamp(28px,3.8vw,42px);line-height:1.08;font-weight:700;margin-bottom:12px}
+.pitch .lead{color:var(--ink-2);font-size:17px;max-width:62ch;margin-bottom:28px}
+.pitch .note{color:var(--ink-3);font-size:14px}
+.chip{display:inline-block;font:500 11px/1.25 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:20px;background:var(--desk-3);color:var(--ink-2)}
+.chip.ok{background:rgba(95,211,154,.14);color:var(--ok)} .chip.warn{background:rgba(243,170,60,.14);color:var(--amber)} .chip.neutral{background:rgba(168,213,255,.12);color:var(--ice)}
+.seg{display:inline-flex;flex-wrap:wrap;gap:4px;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{border:0;background:transparent;color:var(--ink-2);font:600 14px/1 var(--body);padding:10px 14px;border-radius:999px;min-height:40px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--desk)}
+.pbtn{display:inline-flex;align-items:center;gap:8px;border:0;background:var(--amber);color:var(--amber-ink);font:600 15px/1 var(--body);padding:12px 18px;border-radius:999px;min-height:44px;text-decoration:none}
+.pbtn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line-2)}
+/* after the call */
+.ac-bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px}
+.ac-steps{list-style:none;margin:0 0 18px;padding:0;display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.ac-steps li button{width:100%;text-align:left;background:var(--desk-2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--ink-2);font:500 13px/1.35 var(--body);display:grid;gap:2px;min-height:44px}
+.ac-steps li button b{font:500 11px/1 var(--mono);letter-spacing:.08em;color:var(--amber)}
+.ac-steps li button[aria-current="step"]{border-color:var(--amber);color:var(--ink)}
+.ac-grid{display:grid;gap:14px}
+@media (min-width:960px){.ac-grid{grid-template-columns:1fr 1fr 1.1fr;align-items:start}}
+.ac-col{display:grid;gap:12px;min-width:0}
+.ac-h{font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:0 0 2px}
+.ac-card{background:var(--desk-2);border:1px solid var(--line);border-radius:16px;padding:16px;font-size:14px;transition:opacity .35s,border-color .35s,transform .35s}
+.ac-card p{margin:0}
+.ac-card.dim{opacity:.35}.ac-card.lit{border-color:var(--amber);transform:translateY(-2px)}
+@media (prefers-reduced-motion:reduce){.ac-card{transition:none}.ac-card.lit{transform:none}}
+.ac-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.ac-top b{font-size:14px}.ac-top span{font:400 12px/1 var(--mono);color:var(--ink-3)}
+.tr{display:grid;gap:8px}
+.tr p{padding:8px 11px;border-radius:12px;max-width:92%;line-height:1.45}
+.tr .c{background:var(--desk-3);justify-self:end}.tr .s{background:rgba(168,213,255,.12);color:var(--ice-2)}
+.tr small{display:block;font:500 10px/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase;opacity:.7}
+.rec{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px}
+.rec dt{color:var(--ink-3);font:400 12px/1.6 var(--mono)}.rec dd{margin:0;min-width:0}
+.mail .meta{font:400 12px/1.6 var(--mono);color:var(--ink-3);border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:8px;word-break:break-word}
+.mail .meta b{color:var(--ink);font-weight:500}.mail p{margin:0 0 6px}
+.mail .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.mail .acts span{font:600 12px/1 var(--body);padding:8px 12px;border-radius:999px;border:1px solid var(--line-2)}
+.mail .acts span.pri{background:var(--ice);color:var(--desk);border-color:var(--ice)}
+.sms{background:var(--desk-3);border-radius:14px 14px 14px 4px;padding:10px 12px;line-height:1.45}
+.logrow{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;font-size:13px;padding:8px 0;border-bottom:1px solid var(--line)}
+.logrow .t{font:400 12px/1 var(--mono);color:var(--ink-3)}
+[data-mode="pilot"] .only-live{display:none}[data-mode="live"] .only-pilot{display:none}
+/* offer */
+.offer{display:grid;gap:16px}
+@media (min-width:960px){.offer{grid-template-columns:1fr 1.25fr;align-items:start}}
+.ocard{background:linear-gradient(160deg,var(--desk-3),var(--desk-2));border:1px solid var(--line-2);border-radius:24px;padding:26px;display:grid;gap:14px}
+.ocard .big{font-family:var(--display);font-weight:700;font-size:clamp(30px,4vw,42px);line-height:1.05}
+.ocard .big em{font-style:normal;color:var(--ice)}
+.ocard ul{list-style:none;margin:0;padding:0;display:grid;gap:10px;color:var(--ink-2)}
+.ocard li{display:grid;grid-template-columns:20px 1fr;gap:10px}
+.ocard li svg{width:20px;height:20px;color:var(--ok);margin-top:2px}
+.oside{display:grid;gap:16px;min-width:0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.stats div{padding:16px;background:var(--desk-2)}.stats div+div{border-left:1px solid var(--line)}
+.stats b{display:block;font-family:var(--display);font-size:28px;line-height:1.1;color:var(--amber)}
+.stats span{font-size:14px;color:var(--ink-2)}
+@media (max-width:560px){.stats{grid-template-columns:1fr}.stats div+div{border-left:0;border-top:1px solid var(--line)}}
+.box{background:var(--desk-2);border:1px solid var(--line);border-radius:16px;padding:18px}
+.box h3{font-size:18px;margin-bottom:10px}
+.kv{display:grid;gap:8px}.kv div{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:8px;font-size:15px}
+.kv div:last-child{border:0;padding:0}.kv b{font:500 15px var(--mono);color:var(--ice);white-space:nowrap}
+.nsteps{margin:0;padding:0;list-style:none;counter-reset:n;display:grid;gap:8px}
+.nsteps li{display:grid;grid-template-columns:28px 1fr;font-size:15px;color:var(--ink-2);counter-increment:n}
+.nsteps li::before{content:counter(n,decimal-leading-zero);font:500 12px/1.9 var(--mono);color:var(--amber)}
+/* beyond */
+.svc{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin-bottom:18px}
+.svc div{background:var(--desk-2);border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;gap:6px;align-content:start}
+.svc h3{font-size:18px}.svc p{color:var(--ink-2);font-size:15px}
+.svc svg{width:22px;height:22px;color:var(--ice)}
+.sign{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:center;border:1px solid var(--line-2);border-radius:20px;padding:20px 22px;margin-top:28px}
+.sign .who{font-family:var(--display);font-size:22px;font-weight:700}.sign .who span{display:block;font:400 14px var(--body);color:var(--ink-2)}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="wrap">
+    <span class="brand"><i aria-hidden="true"></i>Sophie</span>
+    <span class="tag" data-i18n="tag">Concept demo for Myers</span>
+    <div class="langs" role="group" aria-label="Language">
+      <button type="button" id="lang-en" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" id="lang-fr" data-lang="fr" aria-pressed="false">FR</button>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="wrap">
+    <section class="intro">
+      <p class="label" data-i18n="eyebrow">AI phone assistant · Myers Automotive Group</p>
+      <h1 data-i18n-html="h1">Never miss an after-hours or overflow call. <em>In English and in French.</em></h1>
+      <p class="lead" data-i18n="lead">Pick a call and talk to Sophie live. When the store is closed or every line is busy, she picks up the way Myers' service desk would.</p>
+      <ul class="points">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p1">Takes tire changeover and service booking requests</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p2">Switches between English and Canadian French mid-call</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="p3">Sends every other call to the right department</span></li>
+      </ul>
+      <p class="phone" id="phone-line" hidden><span data-i18n="orCall">Or call</span> <b id="phone-number"></b></p>
+    </section>
+
+    <section class="console" id="console" data-state="idle" aria-label="Live call with Sophie">
+      <div class="ctop"><span class="dot" aria-hidden="true"></span><span data-i18n="line">DEMO LINE · EN / FR · SAMPLE DATA</span><span class="t" id="timer">00:00</span></div>
+
+      <div class="stage">
+        <canvas class="orb" id="orb" width="208" height="208" aria-hidden="true"></canvas>
+        <div class="who" aria-live="polite">
+          <h2>Sophie</h2>
+          <p class="state" id="state" data-i18n="sIdle">Ready when you are</p>
+          <p class="hint" data-i18n="micHint">Your browser will ask to use your microphone.</p>
+        </div>
+      </div>
+
+      <div class="pick">
+        <p class="label" data-i18n="pickTitle">Pick a call to try</p>
+        <div class="scen" role="group" aria-label="Calls to try">
+          <button type="button" class="sc" data-sc="1" aria-pressed="false">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg></span>
+            <b data-i18n="sc1">Winter tires</b>
+          </button>
+          <button type="button" class="sc" data-sc="2" aria-pressed="false">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5h9M8.5 3v2M6 5c1 4 4 7 7 8M11 5c-1 4-4 7-7 8"/><path d="M13 21l4-9 4 9M14.5 18h5"/></svg></span>
+            <b data-i18n="sc2">Switch to French</b>
+          </button>
+          <button type="button" class="sc" data-sc="3" aria-pressed="false">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 16V12l2-5h10l2 5v4"/><path d="M3 16h18v3H3z"/><circle cx="7.5" cy="19" r="1"/><circle cx="16.5" cy="19" r="1"/><path d="M12 2v3"/></svg></span>
+            <b data-i18n="sc3">Collision</b>
+          </button>
+          <button type="button" class="sc" data-sc="4" aria-pressed="false">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span>
+            <b data-i18n="sc4">A real person?</b>
+          </button>
+        </div>
+      </div>
+
+      <div class="cue" id="cue" hidden>
+        <p class="label" data-i18n="sayLabel">Say this</p>
+        <p class="say" id="cue-say"></p>
+        <p class="watch"><b data-i18n="watchLabel">Watch for:</b> <span id="cue-watch"></span></p>
+      </div>
+
+      <div class="log" id="log" role="log" aria-label="Transcript">
+        <p class="empty" id="log-empty" data-i18n="logEmpty">Pick a call above, or just start talking. The conversation appears here.</p>
+      </div>
+
+      <div class="fallback" id="fallback" hidden>
+        <span data-i18n="fallback">The microphone isn't available on this page.</span>
+        <a id="fallback-link" href="#" target="_blank" rel="noopener" data-i18n="fallbackLink">Open Sophie in a new tab</a>
+      </div>
+
+      <div class="callrow">
+        <button type="button" class="btn go" id="start-main">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+          <span data-i18n="startMain">Talk to Sophie</span>
+        </button>
+        <button type="button" class="btn alt" id="start-other"><span data-i18n="startOther">Parler en français</span></button>
+        <button type="button" class="btn stop" id="end" hidden>
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 15.5c5-4.6 13-4.6 18 0l-2.3 2.6-3.6-1.4v-2.4a12 12 0 0 0-6.2 0v2.4l-3.6 1.4z"/></svg>
+          <span data-i18n="end">End call</span>
+        </button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<section class="pitch" id="after"><div class="wrap" data-mode="pilot" id="acRoot">
+  <p class="label">After the call</p>
+  <h2>Where the call goes once Sophie hangs up.</h2>
+  <p class="lead">A booking is only useful if the right person sees it in time. Here is one sample call, step by step: what Sophie records, where it lands, and how your staff are told.</p>
+  <div class="ac-bar">
+    <div class="seg" role="group" aria-label="Which stage">
+      <button type="button" id="mode-pilot" data-mode="pilot" aria-pressed="true">During the pilot</button>
+      <button type="button" id="mode-live" data-mode="live" aria-pressed="false">Once Xtime access is live</button>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button type="button" class="pbtn" id="acPlay">▶ Play the sequence</button>
+      <button type="button" class="pbtn ghost" id="acAll">Show all</button>
+    </div>
+  </div>
+  <ol class="ac-steps" id="acSteps">
+    <li><button type="button" data-s="1"><b>01</b>Call ends</button></li>
+    <li><button type="button" data-s="2"><b>02</b><span class="only-pilot">Record created</span><span class="only-live">Record + booked in Xtime</span></button></li>
+    <li><button type="button" data-s="3"><b>03</b>Store notified</button></li>
+    <li><button type="button" data-s="4"><b>04</b><span class="only-pilot">Staff confirm</span><span class="only-live">Morning check</span></button></li>
+    <li><button type="button" data-s="5"><b>05</b>Customer told, call logged</button></li>
+  </ol>
+  <div class="ac-grid">
+    <div class="ac-col">
+      <p class="ac-h">The call</p>
+      <div class="ac-card" data-s="1">
+        <div class="ac-top"><b>Inbound · after hours</b><span>Sun 21:14 · 2 min 48 s</span></div>
+        <div class="tr">
+          <p class="c"><small>Caller</small>Bonjour, j'aimerais prendre rendez-vous pour mes pneus d'hiver.</p>
+          <p class="s"><small>Sophie · FR</small>Bien sûr. Vos pneus d'hiver sont-ils entreposés chez nous?</p>
+          <p class="c"><small>Caller</small>Oui. C'est un RAV4 2021. Jeudi matin, si possible.</p>
+          <p class="s"><small>Sophie · FR</small><span class="only-pilot">Parfait. J'envoie votre demande à l'équipe du service, qui vous rappellera demain avant 10 h pour confirmer.</span><span class="only-live">Jeudi à 8 h 30 est disponible. C'est confirmé, et vous recevrez un texto de confirmation.</span></p>
+        </div>
+      </div>
+      <div class="ac-card" data-s="2">
+        <div class="ac-top"><b>Structured record</b><span class="chip" id="acStatus">Booking request received</span></div>
+        <dl class="rec">
+          <dt>Customer</dt><dd>Marie Tremblay (sample)</dd>
+          <dt>Callback</dt><dd>Number on the call · confirmed by caller</dd>
+          <dt>Language</dt><dd>French</dd>
+          <dt>Store</dt><dd>Barrhaven Toyota · Service</dd>
+          <dt>Vehicle</dt><dd>2021 Toyota RAV4</dd>
+          <dt>Service</dt><dd>Winter tire changeover · tires in storage</dd>
+          <dt>Preferred</dt><dd>Thursday morning</dd>
+          <dt>Follow-up by</dt><dd class="only-pilot">Mon 10:00 · Myers standard</dd><dd class="only-live">Not needed · confirmed in Xtime</dd>
+        </dl>
+      </div>
+      <div class="ac-card only-live" data-s="2">
+        <div class="ac-top"><b>Xtime · appointment created</b><span>Sun 21:14</span></div>
+        <p style="margin:0">Sophie checks open slots in Xtime during the call, books Thursday 08:30, and links the tire storage record from the DMS. The record changes to <b>Booking confirmed</b> only after Xtime returns the appointment.</p>
+      </div>
+    </div>
+    <div class="ac-col">
+      <p class="ac-h">Your team is told</p>
+      <div class="ac-card mail" data-s="3">
+        <div class="ac-top"><b>Email · service desk</b><span>Sun 21:15</span></div>
+        <div class="meta">To: <b>Barrhaven service inbox</b> (address set by Myers)<br>Subject: <b><span class="only-pilot">[Booking request] Winter tires · RAV4 · Thu AM · FR</span><span class="only-live">[Booked] Winter tires · RAV4 · Thu 08:30 · FR</span></b></div>
+        <p><span class="only-pilot">New booking request from an after-hours call. Not yet in Xtime: please confirm a time with the customer by Mon 10:00.</span><span class="only-live">Appointment created in Xtime from an after-hours call. No action needed unless you want to adjust it.</span></p>
+        <p style="color:var(--ink-3)">Summary, full transcript (FR, with English translation) and call recording are attached to the record.</p>
+        <div class="acts"><span class="pri only-pilot">Mark as confirmed</span><span class="pri only-live">Open in Xtime</span><span>Listen to call</span></div>
+      </div>
+      <div class="ac-card" data-s="3">
+        <div class="ac-top"><b>SMS · service advisor on duty</b><span>Mon 07:30</span></div>
+        <div class="sms"><span class="only-pilot">Sophie: 1 new booking request for Barrhaven (winter tires, Thu AM, French speaker). Call back by 10:00. Details in your inbox.</span><span class="only-live">Sophie: overnight, 1 new appointment booked in Xtime for Barrhaven (winter tires, Thu 08:30). Details in your inbox.</span></div>
+        <p class="note" style="margin-top:8px">Sent at opening, not at 21:15. Who gets texted, and when, is set by Myers.</p>
+      </div>
+      <div class="ac-card only-pilot" data-s="4">
+        <div class="ac-top"><b>Staff confirm</b><span>Mon 09:12</span></div>
+        <p style="margin:0">The advisor calls Marie back, books Thursday 08:30 in Xtime as usual, and clicks <b>Mark as confirmed</b>. The record changes to <b>Booking confirmed by staff</b>.</p>
+      </div>
+      <div class="ac-card only-live" data-s="4">
+        <div class="ac-top"><b>Morning check</b><span>Mon 08:00</span></div>
+        <p style="margin:0">No call-back needed. The advisor sees the new appointment on the morning list and in Xtime, and can adjust it if needed.</p>
+      </div>
+    </div>
+    <div class="ac-col">
+      <p class="ac-h">Customer and reporting</p>
+      <div class="ac-card" data-s="5">
+        <div class="ac-top"><b>SMS to the customer</b><span class="only-pilot">Optional</span><span class="only-live">Sun 21:15</span></div>
+        <div class="sms"><span class="only-pilot">Myers Barrhaven Toyota : nous avons bien reçu votre demande pour vos pneus d'hiver. Notre équipe vous rappellera demain avant 10 h.</span><span class="only-live">Myers Barrhaven Toyota : votre rendez-vous pneus d'hiver est confirmé jeudi à 8 h 30. Répondez 1 pour modifier.</span></div>
+        <p class="note" style="margin-top:8px"><span class="only-pilot">Sent only if Myers approves this "request received" message.</span><span class="only-live">Sent only after the scheduler confirms the booking.</span></p>
+      </div>
+      <div class="ac-card" data-s="5">
+        <div class="ac-top"><b>Call log · Barrhaven</b><span>Weekly report</span></div>
+        <div class="logrow"><span class="t">Sun 21:14</span><span>Winter tires · RAV4 · FR</span><span class="chip warn" id="acLog">Booking request</span></div>
+        <div class="logrow"><span class="t">Sun 19:52</span><span>Hours question · EN</span><span class="chip neutral">Answered</span></div>
+        <div class="logrow"><span class="t">Sun 18:03</span><span>Lease return · EN</span><span class="chip warn">Callback</span></div>
+        <div class="logrow"><span class="t">Sat 16:40</span><span>Parts availability · EN</span><span class="chip neutral">Transferred</span></div>
+        <p class="note" style="margin-top:10px">Every call keeps one outcome. Open follow-ups stay on the next-morning list until someone closes them.</p>
+      </div>
+      <div class="ac-card" data-s="5">
+        <div class="ac-top"><b>Sales lead, if it was one</b><span class="only-pilot">Email</span><span class="only-live">CRM</span></div>
+        <p style="margin:0"><span class="only-pilot">Sales calls go by email to the sales manager with the same summary.</span><span class="only-live">Sales calls are written to Myers' CRM as a new lead with the transcript.</span></p>
+      </div>
+    </div>
+  </div>
+  <p class="note" style="margin-top:16px">Illustrative sequence with sample data. Names, times and message wording are examples; recipients, timing and templates are agreed with Myers before go-live.</p>
+</div></section>
+
+
+<section class="pitch" id="offer"><div class="wrap">
+  <p class="label">The offer</p>
+  <h2>Start with two stores. Decide on your own numbers.</h2>
+  <p class="lead">We reviewed myers.ca, Myers Barrhaven Toyota and Myers Orléans GM in October 2026. Web chat is covered. The phones and French are not.</p>
+  <div class="offer">
+    <div class="ocard">
+      <p class="label" style="margin:0">Paid pilot</p>
+      <div class="big">60 days at <em>2 dealerships</em></div>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Sophie answers after-hours, busy and unanswered calls, in English or French</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Booking requests go to the store to confirm, with a full summary</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Your numbers, Xtime and call tracking stay exactly as they are</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Every call logged with one honest outcome, reported weekly</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Pilot fee credited against setup if you continue. If targets are missed, stop with no obligation</span></li>
+      </ul>
+      <p class="note">Pricing is shared in the discovery meeting, once we know your store list and systems.</p>
+    </div>
+    <div class="oside">
+      <div class="stats">
+        <div><b>3 of 3</b><span>sites with no French option</span></div>
+        <div><b>3</b><span>different chat setups on three sites</span></div>
+        <div><b>0</b><span>AI answering the phones</span></div>
+      </div>
+      <div class="box"><h3>How we measure, against your own baseline</h3>
+        <div class="kv">
+          <div><span>Covered calls answered</span><b>98%+</b></div>
+          <div><span>Calls and requests reaching the right store and department</span><b>90%+</b></div>
+          <div><span>Requests with every detail staff need</span><b>90%+</b></div>
+        </div>
+      </div>
+      <div class="box"><h3>Next steps</h3>
+        <ol class="nsteps">
+          <li>A 30-minute discovery call: phone system, scheduler, DMS, CRM</li>
+          <li>Choose the 2 pilot stores and a pilot owner</li>
+          <li>Share 4 weeks of call reports for the baseline, and we go live</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<section class="pitch" id="beyond"><div class="wrap">
+  <p class="label">Beyond the phones</p>
+  <h2>Everything Myers puts in front of customers, we can build with you.</h2>
+  <p class="lead">Sophie is where we start. The same team also produces the marketing, content and tools around her, in English and French, so the whole customer experience speaks with one voice.</p>
+  <div class="svc">
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg><h3>Marketing campaigns</h3><p>Seasonal tire and service campaigns, offers and landing pages, timed to your busiest weeks.</p></div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg><h3>Social media</h3><p>Bilingual content calendars, posts and short videos for each store and the group.</p></div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3z"/></svg><h3>Commercial video</h3><p>Dealership, model and service films, with AI-assisted production for faster turnaround.</p></div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg><h3>Websites and chat</h3><p>A "Talk to Sophie" button across your sites, and later one bilingual assistant for every channel.</p></div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg><h3>Team AI training</h3><p>Practical sessions for service, BDC and managers, built around your own stores and tools.</p></div>
+  </div>
+  <p class="note">Each one is quoted separately, only when you ask.</p>
+  <div class="sign">
+    <div class="who">Cem Guler<span>Founder, GEN:A Labs · Ottawa · <a href="https://buildgena.ca/" target="_blank" rel="noopener">buildgena.ca</a></span></div>
+    <a class="pbtn ghost" href="Sophie-for-Myers-Proposal.pdf">Full proposal (PDF)</a>
+  </div>
+</div></section>
+
+<footer>
+  <div class="wrap">
+    <p class="contact" id="contact" hidden></p>
+    <p data-i18n="foot">Concept demo prepared for Myers Automotive Group. This is not an official Myers page. Customer records, times and hours shown are sample data.</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.27.0/dist/lib.iife.js"></script>
+<script>
+// Per-client values. The agent id is public (the agent runs without auth for this demo).
+const CONFIG = {
+  agentId: "agent_2201m5x57bz1fwc9wsegsa1xkxtt",
+  phone: "",                       // demo phone number once the Twilio line is live
+  contact: { name: "", email: "" } // shown in the footer when filled in
+};
+const TALK_URL = "https://elevenlabs.io/app/talk-to?agent_id=" + CONFIG.agentId;
+
+const T = {
+  en: {
+    tag: "Concept demo for Myers",
+    eyebrow: "AI phone assistant · Myers Automotive Group",
+    h1: "Never miss an after-hours or overflow call. <em>In English and in French.</em>",
+    lead: "Pick a call and talk to Sophie live. When the store is closed or every line is busy, she picks up the way Myers' service desk would.",
+    p1: "Takes tire changeover and service booking requests", p2: "Switches between English and Canadian French mid-call", p3: "Sends every other call to the right department",
+    orCall: "Or call",
+    line: "DEMO LINE · EN / FR · SAMPLE DATA",
+    sIdle: "Ready when you are", sConnecting: "Connecting…", sListening: "Listening", sSpeaking: "Sophie is speaking", sEnded: "Call ended",
+    micHint: "Your browser will ask to use your microphone.",
+    pickTitle: "Pick a call to try",
+    sc1: "Winter tires", sc2: "Switch to French", sc3: "Collision", sc4: "A real person?",
+    sc1say: "“I need my winter tires put on.”", sc1watch: "She finds the sample RAV4 with tires on rack B-14, offers two times, and sends the request to the store to confirm.",
+    sc2say: "“Français, s'il vous plaît.”", sc2watch: "She switches to Canadian French mid-call and carries on with the request.",
+    sc3say: "“I was just in an accident.”", sc3watch: "She checks that everyone is okay, then connects the caller with CARSTAR.",
+    sc4say: "“Am I talking to a real person?”", sc4watch: "She says she's Myers' AI assistant and offers a staff member.",
+    sayLabel: "Say this", watchLabel: "Watch for:",
+    logEmpty: "Pick a call above, or just start talking. The conversation appears here.",
+    fallback: "The microphone isn't available on this page.", fallbackLink: "Open Sophie in a new tab",
+    startMain: "Talk to Sophie", startOther: "Parler en français", end: "End call", you: "You",
+    moreLabel: "For the Myers team",
+    d1t: "How it would work at Myers", d1s: "No new phone numbers, nothing to install",
+    f1t: "A customer calls the store", f1d: "They dial the number they always use.",
+    f2t: "Busy or closed? Sophie answers", f2d: "The call forwards to Sophie. Myers keeps every number it has today.",
+    f3t: "She takes the request, answers or transfers", f3d: "Booking requests go to the store team to confirm; other calls go to the right department.",
+    f4t: "Staff get a summary", f4d: "A short note of each call, by text or email.",
+    fNote: "Built for tire season: Sophie can take several calls at once, and her capacity is sized to Myers' real peak volume before launch.",
+    d2t: "Rollout", d2s: "Two stores first, then all eighteen",
+    r1k: "Phase 1 · 60-day pilot", r1t: "Two stores", r1d: "Overflow and after-hours calls. Booking requests are emailed to the store.",
+    r2k: "Phase 2 · Connected", r2t: "Live systems", r2d: "Real times and bookings from Xtime, customer and tire-storage lookup from the DMS, and sales leads into the CRM.",
+    r3k: "Phase 3 · Group-wide", r3t: "All 18 dealerships", r3d: "A voice button on the website and a weekly report: calls answered, resolved, transferred and booked.",
+    d3t: "Trust and privacy", d3s: "What Sophie will and won't do",
+    k1: "She says she's an AI whenever she's asked.", k2: "She never quotes prices or warranty terms. An advisor confirms them.",
+    k3: "She never asks for card numbers or other sensitive data.", k4: "Customer data stays in Myers' own systems.",
+    k5: "In the live version, each call starts with a recording notice (PIPEDA).", k6: "If she doesn't understand twice, she offers a staff member.",
+    foot: "Concept demo prepared for Myers Automotive Group. This is not an official Myers page. Customer records, times and hours shown are sample data.",
+    contactBy: "Questions or a walkthrough:"
+  },
+  fr: {
+    tag: "Démo conceptuelle pour Myers",
+    eyebrow: "Assistante téléphonique IA · Myers Automotive Group",
+    h1: "Plus d'appels manqués, le soir comme en période de pointe. <em>En français comme en anglais.</em>",
+    lead: "Choisissez un appel et parlez à Sophie en direct. Quand la succursale est fermée ou que toutes les lignes sont occupées, elle répond comme le comptoir de service de Myers.",
+    p1: "Prend les demandes de rendez-vous pour les pneus et l'entretien", p2: "Passe du français à l'anglais en plein appel", p3: "Dirige les autres appels vers le bon service",
+    orCall: "Ou composez le",
+    line: "LIGNE DÉMO · FR / EN · DONNÉES FICTIVES",
+    sIdle: "Prête quand vous l'êtes", sConnecting: "Connexion…", sListening: "À l'écoute", sSpeaking: "Sophie parle", sEnded: "Appel terminé",
+    micHint: "Votre navigateur vous demandera l'accès au micro.",
+    pickTitle: "Choisissez un appel à essayer",
+    sc1: "Pneus d'hiver", sc2: "Passer à l'anglais", sc3: "Collision", sc4: "Une vraie personne?",
+    sc1say: "« Je voudrais faire poser mes pneus d'hiver. »", sc1watch: "Elle trouve le RAV4 fictif dont les pneus sont au rack B-14, propose deux plages horaires et transmet la demande à la succursale pour confirmation.",
+    sc2say: "« English, please. »", sc2watch: "Elle passe à l'anglais en plein appel et poursuit la demande de rendez-vous.",
+    sc3say: "« Je viens d'avoir un accident. »", sc3watch: "Elle s'assure que tout le monde va bien, puis met la personne en contact avec CARSTAR.",
+    sc4say: "« Est-ce que je parle à une vraie personne? »", sc4watch: "Elle répond qu'elle est l'assistante IA de Myers et offre de parler à un employé.",
+    sayLabel: "Dites ceci", watchLabel: "À remarquer :",
+    logEmpty: "Choisissez un appel ci-dessus, ou commencez simplement à parler. La conversation s'affiche ici.",
+    fallback: "Le micro n'est pas accessible sur cette page.", fallbackLink: "Ouvrir Sophie dans un nouvel onglet",
+    startMain: "Parler à Sophie", startOther: "Talk in English", end: "Raccrocher", you: "Vous",
+    moreLabel: "Pour l'équipe Myers",
+    d1t: "Comment ça fonctionnerait chez Myers", d1s: "Aucun nouveau numéro, rien à installer",
+    f1t: "Le client appelle la succursale", f1d: "Il compose le numéro qu'il utilise toujours.",
+    f2t: "Ligne occupée ou fermée? Sophie répond", f2d: "L'appel est transféré à Sophie. Myers garde tous ses numéros actuels.",
+    f3t: "Elle prend la demande, répond ou transfère", f3d: "Les demandes de rendez-vous vont à l'équipe de la succursale pour confirmation; les autres appels vont au bon service.",
+    f4t: "Le personnel reçoit un résumé", f4d: "Une courte note de chaque appel, par texto ou courriel.",
+    fNote: "Pensée pour la saison des pneus : Sophie peut prendre plusieurs appels à la fois, et sa capacité est ajustée au volume de pointe réel de Myers avant le lancement.",
+    d2t: "Déploiement", d2s: "Deux succursales au départ, puis les dix-huit",
+    r1k: "Phase 1 · Projet pilote de 60 jours", r1t: "Deux succursales", r1d: "Appels en débordement et hors des heures d'ouverture. Les demandes de rendez-vous sont envoyées par courriel à la succursale.",
+    r2k: "Phase 2 · Connectée", r2t: "Systèmes en direct", r2d: "Plages horaires et rendez-vous réels dans Xtime, recherche des clients et des pneus entreposés dans le DMS, et pistes de vente dans le CRM.",
+    r3k: "Phase 3 · Tout le groupe", r3t: "Les 18 concessions", r3d: "Un bouton vocal sur le site Web et un rapport hebdomadaire : appels répondus, réglés, transférés et réservés.",
+    d3t: "Confiance et confidentialité", d3s: "Ce que Sophie fait et ne fait pas",
+    k1: "Elle dit qu'elle est une IA chaque fois qu'on le lui demande.", k2: "Elle ne donne jamais de prix ni de conditions de garantie. Un conseiller les confirme.",
+    k3: "Elle ne demande jamais de numéro de carte ni d'autres renseignements sensibles.", k4: "Les données des clients restent dans les systèmes de Myers.",
+    k5: "Dans la version en production, chaque appel commence par un avis d'enregistrement (LPRPDE).", k6: "Si elle ne comprend pas deux fois de suite, elle offre de parler à un employé.",
+    foot: "Démo conceptuelle préparée pour Myers Automotive Group. Ce n'est pas une page officielle de Myers. Les dossiers clients, les heures et les horaires affichés sont des données fictives.",
+    contactBy: "Questions ou démonstration :"
+  }
+};
+
+const $ = (id) => document.getElementById(id);
+let lang = "en";
+let conv = null, state = "idle", startedAt = 0, tick = null, scenario = 0;
+
+function store(k, v) { try { v === undefined ? (v = localStorage.getItem(k)) : localStorage.setItem(k, v); return v; } catch (e) { return null; } }
+
+function applyLang(next) {
+  lang = next === "fr" ? "fr" : "en";
+  const d = T[lang];
+  document.documentElement.lang = lang === "fr" ? "fr-CA" : "en-CA";
+  document.querySelectorAll("[data-i18n]").forEach((el) => { const v = d[el.dataset.i18n]; if (v) el.textContent = v; });
+  document.querySelectorAll("[data-i18n-html]").forEach((el) => { const v = d[el.dataset.i18nHtml]; if (v) el.innerHTML = v; });
+  document.querySelectorAll(".langs button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
+  setState(state);
+  showCue();
+  renderContact();
+  store("sophie-lang", lang);
+}
+
+function renderContact() {
+  const c = CONFIG.contact, el = $("contact");
+  if (!c.name && !c.email) { el.hidden = true; return; }
+  el.hidden = false;
+  el.textContent = "";
+  el.append(T[lang].contactBy + " ");
+  if (c.name) { const b = document.createElement("b"); b.textContent = c.name; el.append(b, c.email ? " · " : ""); }
+  if (c.email) el.append(c.email);
+}
+
+function setState(s) {
+  state = s;
+  const d = T[lang];
+  const label = { idle: d.sIdle, connecting: d.sConnecting, listening: d.sListening, speaking: d.sSpeaking, ended: d.sEnded }[s] || d.sIdle;
+  $("state").textContent = label;
+  $("console").dataset.state = s;
+  const live = s === "connecting" || s === "listening" || s === "speaking";
+  $("end").hidden = !live;
+  $("start-main").hidden = live;
+  $("start-other").hidden = live;
+}
+
+function showCue() {
+  document.querySelectorAll(".sc").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.sc) === scenario)));
+  if (!scenario) { $("cue").hidden = true; return; }
+  $("cue").hidden = false;
+  $("cue-say").textContent = T[lang]["sc" + scenario + "say"];
+  $("cue-watch").textContent = T[lang]["sc" + scenario + "watch"];
+}
+
+function addMsg(role, text) {
+  if (!text) return;
+  $("log-empty").hidden = true;
+  const p = document.createElement("p");
+  p.className = "msg " + (role === "user" ? "user" : "agent");
+  const tag = document.createElement("small");
+  tag.textContent = role === "user" ? T[lang].you : "Sophie";
+  p.append(tag, text);
+  $("log").append(p);
+  $("log").scrollTop = $("log").scrollHeight;
+}
+
+function showFallback() { $("fallback").hidden = false; $("fallback-link").href = TALK_URL; }
+
+function fmt(ms) { const s = Math.floor(ms / 1000); return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); }
+
+async function startCall(callLang) {
+  if (conv || state === "connecting") return;
+  $("fallback").hidden = true;
+  if (!window.ElevenLabsClient || !navigator.mediaDevices) { showFallback(); return; }
+  setState("connecting");
+  try {
+    await navigator.mediaDevices.getUserMedia({ audio: true });
+    conv = await ElevenLabsClient.Conversation.startSession({
+      agentId: CONFIG.agentId,
+      connectionType: "websocket",
+      overrides: { agent: { language: callLang } },
+      onConnect: () => {
+        startedAt = Date.now();
+        clearInterval(tick);
+        tick = setInterval(() => ($("timer").textContent = fmt(Date.now() - startedAt)), 500);
+        setState("listening");
+      },
+      onDisconnect: () => endCleanup(),
+      onError: () => {},
+      onModeChange: ({ mode }) => setState(mode === "speaking" ? "speaking" : "listening"),
+      onMessage: ({ message, role, source }) => addMsg(role || (source === "user" ? "user" : "agent"), message)
+    });
+  } catch (e) {
+    conv = null;
+    setState("idle");
+    showFallback();
+  }
+}
+
+function endCleanup() {
+  conv = null;
+  clearInterval(tick);
+  setState(startedAt ? "ended" : "idle");
+  startedAt = 0;
+}
+
+async function endCall() {
+  const c = conv;
+  if (!c) return endCleanup();
+  try { await c.endSession(); } catch (e) {}
+  endCleanup();
+}
+
+// Orb: breathes when idle, swells with Sophie's voice (ice) or the caller's voice (amber).
+const orb = $("orb"), ctx = orb.getContext("2d");
+const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+let level = 0;
+function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function draw(t) {
+  const w = orb.width, h = orb.height, cx = w / 2, cy = h / 2;
+  let target = 0;
+  const speaking = state === "speaking";
+  if (conv) { try { target = speaking ? conv.getOutputVolume() : conv.getInputVolume(); } catch (e) { target = 0; } }
+  level += (Math.min(1, target * 1.6) - level) * 0.18;
+  const breathe = still ? 0 : Math.sin(t / 900) * 0.03;
+  const base = w * 0.28 * (1 + breathe + level * 0.35);
+  const tone = speaking || !conv ? css("--ice") : css("--amber");
+  ctx.clearRect(0, 0, w, h);
+  for (let i = 3; i >= 1; i--) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, base + i * w * 0.045 * (1 + level), 0, Math.PI * 2);
+    ctx.globalAlpha = 0.06 + level * 0.06;
+    ctx.fillStyle = tone;
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  const g = ctx.createRadialGradient(cx - base * 0.35, cy - base * 0.4, base * 0.1, cx, cy, base);
+  g.addColorStop(0, css("--ice-2"));
+  g.addColorStop(1, tone);
+  ctx.beginPath();
+  ctx.arc(cx, cy, base, 0, Math.PI * 2);
+  ctx.fillStyle = g;
+  ctx.fill();
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+
+$("start-main").addEventListener("click", () => startCall(lang));
+$("start-other").addEventListener("click", () => startCall(lang === "fr" ? "en" : "fr"));
+document.querySelectorAll(".sc").forEach((b) => b.addEventListener("click", () => {
+  scenario = Number(b.dataset.sc);
+  showCue();
+  startCall(lang);
+}));
+$("end").addEventListener("click", endCall);
+document.querySelectorAll(".langs button").forEach((b) => b.addEventListener("click", () => applyLang(b.dataset.lang)));
+$("fallback-link").href = TALK_URL;
+
+if (CONFIG.phone) { $("phone-line").hidden = false; $("phone-number").textContent = CONFIG.phone; }
+const fromHash = location.hash === "#fr" ? "fr" : location.hash === "#en" ? "en" : null;
+const fromBrowser = (navigator.language || "").toLowerCase().startsWith("fr") ? "fr" : "en";
+applyLang(fromHash || store("sophie-lang") || fromBrowser);
+</script>
+
+<script>
+(function(){
+  var root=document.getElementById('acRoot'); if(!root) return;
+  var cards=[].slice.call(root.querySelectorAll('.ac-card'));
+  var stepBtns=[].slice.call(root.querySelectorAll('#acSteps button'));
+  var modeBtns=[].slice.call(root.querySelectorAll('[data-mode][aria-pressed]'));
+  var status=document.getElementById('acStatus'), log=document.getElementById('acLog');
+  var timer=null, cur=0;
+  function paintStatus(){
+    var live=root.dataset.mode==='live';
+    var confirmed=live? cur===0||cur>=2 : cur===0||cur>=4;
+    var txt=live?(cur===0||cur>=2?'Booking confirmed':'Booking in progress'):(cur===0||cur>=4?'Booking confirmed by staff':'Booking request received');
+    status.textContent=txt; status.className='chip '+(confirmed?'ok':'warn');
+    log.textContent=live?'Booked':(cur===0||cur>=4?'Confirmed':'Booking request');log.className='chip '+(live||cur===0||cur>=4?'ok':'warn');
+  }
+  function show(n){
+    cur=n;
+    cards.forEach(function(c){var s=+c.dataset.s;c.classList.toggle('dim',n>0&&s>n);c.classList.toggle('lit',n>0&&s===n)});
+    stepBtns.forEach(function(b){ if(n>0&&+b.dataset.s===n) b.setAttribute('aria-current','step'); else b.removeAttribute('aria-current')});
+    paintStatus();
+  }
+  function stop(){ if(timer){clearInterval(timer);timer=null} }
+  document.getElementById('acPlay').addEventListener('click',function(){
+    stop(); var n=1; show(n);
+    timer=setInterval(function(){ n++; if(n>5){stop();return} show(n)},1800);
+  });
+  document.getElementById('acAll').addEventListener('click',function(){stop();show(0)});
+  stepBtns.forEach(function(b){b.addEventListener('click',function(){stop();show(+b.dataset.s)})});
+  modeBtns.forEach(function(b){b.addEventListener('click',function(){
+    modeBtns.forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});
+    root.dataset.mode=b.dataset.mode; paintStatus();
+  })});
+  show(0);
+})();
+</script>
+</body>
+</html>
